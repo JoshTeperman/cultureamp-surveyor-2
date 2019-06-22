@@ -1,9 +1,7 @@
-require 'spec_helper'
-
 RSpec.describe Surveyor::Question do
-  subject { described_class.new(title: "Hello World") }
+  subject { described_class.new(title: 'Test Title') }
 
-  it "has a title" do
-    expect(subject.title).to eq("Hello World")
+  it 'has the title \'Test Title\'' do
+    expect(subject.title).to eq('Test Title')
   end
 end

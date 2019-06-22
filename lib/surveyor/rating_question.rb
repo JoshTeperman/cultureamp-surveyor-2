@@ -1,5 +1,7 @@
 module Surveyor
   class RatingQuestion < Question
-    # your code goes here
+    def valid_answer?(answer)
+      answer < 6 && answer.positive?
+    end
   end
 end

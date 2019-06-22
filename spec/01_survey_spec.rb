@@ -1,7 +1,5 @@
-require 'spec_helper'
-
 RSpec.describe Surveyor::Survey do
-  subject { described_class.new(name: "Engagement Survey") }
+  subject { described_class.new(name: 'Engagement Survey') }
 
   it "has a name" do
     expect(subject.name).to eq("Engagement Survey")
@@ -17,5 +15,11 @@ RSpec.describe Surveyor::Survey do
     response = double(:response)
     subject.add_response(response)
     expect(subject.responses).to include(response)
+  end
+
+  it 'can ask a survey what its responses are' do
+    # { response1: 'response1', response2: 'response2', response3: 'response3' }
+    expect(subject.view_responses).to eq()
+
   end
 end

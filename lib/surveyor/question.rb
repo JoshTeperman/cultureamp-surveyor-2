@@ -1,5 +1,10 @@
 module Surveyor
   class Question
-    # your code goes here
+    attr_reader :title
+
+    def initialize(hash)
+      @title = hash[:title]
+    end
+
   end
 end

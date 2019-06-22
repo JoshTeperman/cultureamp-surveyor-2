@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 RSpec.describe Surveyor::RatingQuestion do
   subject { described_class.new(title: "Hello World") }
 
