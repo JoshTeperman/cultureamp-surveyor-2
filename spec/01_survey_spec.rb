@@ -18,8 +18,8 @@ RSpec.describe Surveyor::Survey do
   end
 
   it 'can ask a survey what its responses are' do
-    # { response1: 'response1', response2: 'response2', response3: 'response3' }
-    expect(subject.view_responses).to eq()
-
+    response = double(:response) # should I refactor? > same code as prev block
+    subject.responses.push(response)
+    expect(subject.responses).to include(response)
   end
 end

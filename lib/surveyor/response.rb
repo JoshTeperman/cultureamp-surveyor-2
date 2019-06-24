@@ -6,8 +6,8 @@ module Surveyor
       @answers = []
     end
 
-    def add_answer(answer)
-      @answers.push(answer)
-    end
+    # def add_answer(answer)
+    #   @answers.push(answer)
+    # end
   end
 end
