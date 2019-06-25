@@ -3,6 +3,7 @@ RSpec.describe Surveyor::Question do
 
   it "doesn't raise an error when Title is valid" do
     expect { described_class.new(title: 'Sample Title') }.not_to raise_error
+    # ! don't know how to avoid repeated code here
   end
 
   describe 'Title' do

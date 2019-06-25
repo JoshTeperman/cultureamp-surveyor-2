@@ -1,17 +1,14 @@
 RSpec.describe Surveyor::FreeTextQuestion do
-  subject { described_class.new(title: 'Hello World', value: 'Sample Value') }
+  subject { described_class.new(title: 'Sample Title', value: 'Sample Value') }
 
   it 'has a title' do
-    expect(subject.title).to eq('Hello World')
+    expect(subject.title).to eq('Sample Title')
   end
 
-  context('valid answer?') do
+  describe 'Answer Validation' do
     it 'is valid when it is a String' do
-      expect(subject.valid_answer?('Test String')).to eq(true)
-    end
-
-    it 'is invalid when it is not a String' do
-      expect(subject.valid_answer?(1)).to eq(false)
+      expect(subject.validate_answer('Test String')).to eq(true)
     end
   end
+
 end

@@ -2,8 +2,8 @@ module Surveyor
   class Survey
     attr_reader :name, :questions, :responses
 
-    def initialize(hash)
-      @name = hash[:name]
+    def initialize(survey_hash)
+      @name = survey_hash[:name]
       @questions = []
       @responses = []
     end

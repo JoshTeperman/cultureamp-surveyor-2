@@ -1,8 +1,8 @@
 module Surveyor
   class Response
     attr_reader :email, :answers
-    def initialize(hash)
-      @email = hash[:email]
+    def initialize(response_hash)
+      @email = response_hash[:email]
       @answers = []
     end
 

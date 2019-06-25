@@ -2,8 +2,8 @@ module Surveyor
   class Question
     attr_reader :title
 
-    def initialize(hash)
-      title = hash[:title]
+    def initialize(question_hash)
+      title = question_hash[:title]
       title_is_valid?(title)
       @title = title
     end
