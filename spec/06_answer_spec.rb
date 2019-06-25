@@ -1,10 +1,9 @@
 RSpec.describe Surveyor::Answer do
-  subject { described_class.new(question: question) }
+  subject { described_class.new(question: 'Sample Question?', value: 'Sample Value') }
 
   describe 'Answer has a valid question' do
-    let(:question) { 'Sample Question?' }
 
-    it 'has a question' do
+    it 'has a question that you can query with instance.question' do
       expect(subject.question).to eq('Sample Question?')
     end
 
@@ -12,8 +11,8 @@ RSpec.describe Surveyor::Answer do
       expect(subject.question_is_valid?(subject.question)).to eq(true)
     end
 
-    it "doesn't raise an error" do
-      expect { Surveyor::Answer.new(question: 'Sample Question') }.not_to raise_error
+    it "doesn't raise an error when Question and Value are valid" do
+      expect { described_class.new(question: 'Sample Question', value: 'Sample Value') }.not_to raise_error
       # don't know the syntax to avoid this repeated code > how to check initialization in let() block doesn't ArgumentError
     end
   end
@@ -21,47 +20,52 @@ RSpec.describe Surveyor::Answer do
   describe 'Error Handling for invalid question when initializing Answer object' do
 
     it "raises 'Question must be a String' exception if question is a number" do
-      expect { Surveyor::Answer.new(question: 1) }.to raise_error(ArgumentError, 'Invalid Question: Question must be a String')
+      expect { described_class.new(question: 1) }.to raise_error(ArgumentError, 'Invalid Question: Question must be a String')
     end
 
     it "raises 'Question cannot be empty' exception if question is an empty string" do
-      expect { Surveyor::Answer.new(question: "") }.to raise_error(ArgumentError, 'Invalid Question: Question cannot be empty')
+      expect { described_class.new(question: "") }.to raise_error(ArgumentError, 'Invalid Question: Question cannot be empty')
     end
 
     it "raises 'Question cannot be empty' exception if question is nil" do
-      expect { Surveyor::Answer.new(question: nil) }.to raise_error(ArgumentError, 'Invalid Question: Question cannot be empty')
+      expect { described_class.new(question: nil) }.to raise_error(ArgumentError, 'Invalid Question: Question cannot be empty')
     end
 
     it "raises 'Question cannot be empty' exception if question is whitespace" do
-      expect { Surveyor::Answer.new(question: "          ") }.to raise_error(ArgumentError, 'Invalid Question: Question cannot be empty')
+      expect { described_class.new(question: "          ") }.to raise_error(ArgumentError, 'Invalid Question: Question cannot be empty')
     end
 
     it "raises 'Question must be more than three characters long' exception" do
-      expect { Surveyor::Answer.new(question: "a") }.to raise_error(ArgumentError, 'Invalid Question: Question must be more than three characters long')
+      expect { described_class.new(question: "a") }.to raise_error(ArgumentError, 'Invalid Question: Question must be more than three characters long')
     end
   end
 
-  describe 'value attribute' do
-    let(:value) { 'Sample Answer' }
+  describe 'Answer has a valid value' do
 
-    it 'has a value attribute' do
-      expect(subject.value).to eq('Sample Answer')
+    it 'has a value' do
+      expect(subject.value).to eq('Sample Value')
+    end
+
+    it 'is a valid value when the value is a String' do
+      expect(subject.value_is_valid?(subject.value)).to eq(true)
+    end
+
+    it 'raises Answer value must be a String exception when value is not a string' do
+      expect { described_class.new(question: 'Sample Question', value: 1) }.to raise_error(ArgumentError, 'Invalid Answer: Answer value must be a String')
+    end
+
+    it "raises 'Answer value cannot be empty' exception when value is an empty string" do
+      expect { described_class.new(question: 'Sample Question', value: '') }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
+    end
+
+    it "raises 'Answer value cannot be empty' exception when value is nil" do
+      expect { described_class.new(question: 'Sample Question', value: nil) }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
+    end
+
+    it "raises 'Answer value cannot be empty' exception when valus is whitespace" do
+      expect { described_class.new(question: 'Sample Question', value: "             ") }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
     end
   end
 end
 
 # TODO may be appropriate to move this error handling to Question Object
-
-# Adding answers
-
-# Now that this application has responses, the next task is to add answers. Answers are included on a response to track what a particular person's answers were to questions on a survey.
-# Add an Answer class to the application. Answers should have a question attribute. You should be able to ask an answer what its question is.
-
-# It should not be possible to create an answer without specifying a question.
-
-# An answer should have a value attribute that represents the answer for the question.
-# It is not necessary to link an answer to a survey. Instead, answers should be added to responses. You should be able to ask a response what its answers are.
-
-# Finding a particular user's response
-# Add a new method that lets you find a survey's response by the user's email address. If the response is not found, then this method should return nil.
-# Add another method that returns true or false depending on if the user has responded to this survey yet.

@@ -5,13 +5,17 @@ RSpec.describe Surveyor::Response do
     expect(subject.email).to eq('joshteperman@gmail.com')
   end
 
-  # it "includes answers to the survey's questions" do
-  #   answer = double(:answer)
-  #   subject.add_answer(answer)
+  describe 'Survey Answers' do
+    it 'has an array of answers that you can query with instance.answers' do
+      expect(subject.answers). to eq([])
+    end
 
-  #   expect(subject.answers).to include(answer)
-  # end
-
+    it 'can add answers' do
+      new_answer = Surveyor::Answer.new(question: 'Sample question', value: 'Sample Answer')
+      subject.add_answer(new_answer)
+      expect(subject.answers).to include(new_answer)
+    end
+  end
 end
 
-# should I make assumptions about what a response contains and test for that?
+# ! assumption: email validation happens during sign-up, therefore not testing for valid email address
