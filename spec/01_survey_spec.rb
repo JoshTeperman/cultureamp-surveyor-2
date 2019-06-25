@@ -54,6 +54,31 @@ RSpec.describe Surveyor::Survey do
         expect(subject.user_responded?('user@user.com')).to eq(false)
       end
     end
+
+    describe 'Answer Breakdown' do
+      before(:each) do
+        question = Surveyor::FreeTextQuestion.new(title: 'Sample Title')
+        subject.add_question(question)
+
+        answers = [
+          Surveyor::Answer.new(question: question, value: 1),
+          Surveyor::Answer.new(question: question, value: 2),
+          Surveyor::Answer.new(question: question, value: 3),
+          Surveyor::Answer.new(question: question, value: 4),
+          Surveyor::Answer.new(question: question, value: 5),
+        ]
+
+        answers.each do |answer|
+          response = Surveyor::Response.new(email: email)
+          response.add_answer(answer)
+          subject.add_response(response)
+        end
+      end
+
+      # it 'count low answers for a given rating question' do
+      #   expect(subject.count_low_answers(question)).to eq(2)
+      # end
+    end
   end
 end
 

@@ -12,6 +12,8 @@ RSpec.describe Surveyor::Answer do
   end
 
   describe 'Answer' do
+    sample_question = Surveyor::Question.new(title: 'Sample Question')
+
     it 'has a value' do
       expect(subject.value).to eq('Sample Value')
     end
@@ -21,21 +23,19 @@ RSpec.describe Surveyor::Answer do
     end
 
     it 'raises Answer value must be a String exception when value is not a String' do
-      expect { described_class.new(question: 'Sample Question', value: 1) }.to raise_error(ArgumentError, 'Invalid Answer: Answer value must be a String')
+      expect { described_class.new(question: sample_question, value: 1) }.to raise_error(ArgumentError, 'Invalid Answer: Answer value must be a String')
     end
 
     it "raises 'Answer value cannot be empty' exception when value is an empty String" do
-      expect { described_class.new(question: 'Sample Question', value: '') }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
+      expect { described_class.new(question: sample_question, value: '') }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
     end
 
     it "raises 'Answer value cannot be empty' exception when value is nil" do
-      expect { described_class.new(question: 'Sample Question', value: nil) }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
+      expect { described_class.new(question: sample_question, value: nil) }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
     end
 
     it "raises 'Answer value cannot be empty' exception when valus is whitespace" do
-      expect { described_class.new(question: 'Sample Question', value: "             ") }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
+      expect { described_class.new(question: sample_question, value: "             ") }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
     end
   end
 end
-
-# TODO: may be appropriate to move this error handling to Question Object

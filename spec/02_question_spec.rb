@@ -1,8 +1,8 @@
 RSpec.describe Surveyor::Question do
-  subject { described_class.new(title: 'Sample Title', value: 'Sample Value') }
+  subject { described_class.new(title: 'Sample Title') }
 
-  it "doesn't raise an error when title and value are valid" do
-    expect { described_class.new(title: 'Sample Title', value: 'Sample Value') }.not_to raise_error
+  it "doesn't raise an error when Title is valid" do
+    expect { described_class.new(title: 'Sample Title') }.not_to raise_error
   end
 
   describe 'Title' do
@@ -17,23 +17,23 @@ RSpec.describe Surveyor::Question do
 
   describe 'Question' do
     it "raises 'Question must be a String' exception if question is a number" do
-      expect { described_class.new(value: 1) }.to raise_error(ArgumentError, 'Invalid Question: Question value must be a String')
+      expect { described_class.new(title: 1) }.to raise_error(ArgumentError, 'Invalid Question: Title value must be a String')
     end
 
     it "raises 'Question cannot be empty' exception if question is an empty String" do
-      expect { described_class.new(value: "") }.to raise_error(ArgumentError, 'Invalid Question: Question value cannot be empty')
+      expect { described_class.new(title: "") }.to raise_error(ArgumentError, 'Invalid Question: Title value cannot be empty')
     end
 
     it "raises 'Question cannot be empty' exception if question is nil" do
-      expect { described_class.new(value: nil) }.to raise_error(ArgumentError, 'Invalid Question: Question value cannot be empty')
+      expect { described_class.new(title: nil) }.to raise_error(ArgumentError, 'Invalid Question: Title value cannot be empty')
     end
 
     it "raises 'Question cannot be empty' exception if question is whitespace" do
-      expect { described_class.new(value: "          ") }.to raise_error(ArgumentError, 'Invalid Question: Question value cannot be empty')
+      expect { described_class.new(title: "          ") }.to raise_error(ArgumentError, 'Invalid Question: Title value cannot be empty')
     end
 
     it "raises 'Question must be more than three characters long' exception" do
-      expect { described_class.new(value: "a") }.to raise_error(ArgumentError, 'Invalid Question: Question value must be more than three characters long')
+      expect { described_class.new(title: "a") }.to raise_error(ArgumentError, 'Invalid Question: Title value must be more than three characters long')
     end
   end
 end

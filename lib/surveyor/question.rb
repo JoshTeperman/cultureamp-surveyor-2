@@ -1,26 +1,24 @@
 module Surveyor
   class Question
-    attr_reader :title, :value
+    attr_reader :title
 
     def initialize(hash)
-      value = hash[:value]
-      value_is_valid?(value)
-      @title = hash[:title]
-      @value = value
+      title = hash[:title]
+      title_is_valid?(title)
+      @title = title
     end
 
     def title_is_valid?(title)
-      title.class == String
-    end
-
-    def value_is_valid?(value)
-      raise ArgumentError, 'Invalid Question: Question value cannot be empty' if value.nil?
-      raise ArgumentError, 'Invalid Question: Question value must be a String' unless value.class == String
-      raise ArgumentError, 'Invalid Question: Question value cannot be empty' if value.empty?
-      raise ArgumentError, 'Invalid Question: Question value cannot be empty' if value =~ /\A\s*\z/
-      raise ArgumentError, 'Invalid Question: Question value must be more than three characters long' unless value.length > 3
+      raise ArgumentError, 'Invalid Question: Title value cannot be empty' if title.nil?
+      raise ArgumentError, 'Invalid Question: Title value must be a String' unless title.class == String
+      raise ArgumentError, 'Invalid Question: Title value cannot be empty' if title.empty?
+      raise ArgumentError, 'Invalid Question: Title value cannot be empty' if title =~ /\A\s*\z/
+      raise ArgumentError, 'Invalid Question: Title value must be more than three characters long' unless title.length > 3
 
       true
     end
   end
 end
+
+# TODO: create ArgumentError for Title
+# ! created data seaparately for different describe blocks to avoid different definitions and values corrupting other tests, also makes it easier to refactor one test block without breaking other tests
