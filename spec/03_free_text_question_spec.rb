@@ -1,5 +1,5 @@
 RSpec.describe Surveyor::FreeTextQuestion do
-  subject { described_class.new(title: 'Hello World') }
+  subject { described_class.new(title: 'Hello World', value: 'Sample Value') }
 
   it 'has a title' do
     expect(subject.title).to eq('Hello World')

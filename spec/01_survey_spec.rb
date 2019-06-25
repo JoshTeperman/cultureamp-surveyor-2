@@ -35,11 +35,11 @@ RSpec.describe Surveyor::Survey do
       it 'can find responses by user email address' do
         expect(subject.find_user_response('wendy@wendy.com')).to eq(responses[2])
       end
-  
+
       it 'will only return exact email matches' do
         expect(subject.find_user_response('josh@josh.com')).to eq(responses[1])
       end
-  
+
       it "will return nil when a response isn't found" do
         expect(subject.find_user_response('user@user.com')).to eq(nil)
       end
@@ -49,7 +49,7 @@ RSpec.describe Surveyor::Survey do
       it 'will return true if the user has already submitted a response' do
         expect(subject.user_responded?('josh@josh.com')).to eq(true)
       end
-  
+
       it 'will return false if the user has not submitted a response' do
         expect(subject.user_responded?('user@user.com')).to eq(false)
       end

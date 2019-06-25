@@ -1,8 +1,8 @@
 RSpec.describe Surveyor::RatingQuestion do
-  subject { described_class.new(title: "Hello World") }
+  subject { described_class.new(title: 'Sample Title', value: 'Sample Value') }
 
   it 'has a title' do
-    expect(subject.title).to eq("Hello World")
+    expect(subject.title).to eq('Sample Title')
   end
 
   context 'valid_answer?' do
