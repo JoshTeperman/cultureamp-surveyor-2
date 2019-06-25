@@ -10,8 +10,16 @@ RSpec.describe Surveyor::Response do
       expect(subject.answers). to eq([])
     end
 
-    it 'can add answers' do
-      new_answer = Surveyor::Answer.new(question: 'Sample question', value: 'Sample Answer')
+    it 'can add answers to Free Text Questions' do
+      question = Surveyor::FreeTextQuestion.new(title: 'Sample Question')
+      new_answer = Surveyor::Answer.new(question: question, value: 'Sample Answer')
+      subject.add_answer(new_answer)
+      expect(subject.answers).to include(new_answer)
+    end
+
+    it 'can add answers to Rating Questions' do
+      question = Surveyor::RatingQuestion.new(title: 'Sample Question')
+      new_answer = Surveyor::Answer.new(question: question, value: 1)
       subject.add_answer(new_answer)
       expect(subject.answers).to include(new_answer)
     end

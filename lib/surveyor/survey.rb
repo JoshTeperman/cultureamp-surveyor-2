@@ -23,7 +23,6 @@ module Surveyor
     def user_responded?(email)
       find_user_response(email) != nil
     end
-
   end
 end
 

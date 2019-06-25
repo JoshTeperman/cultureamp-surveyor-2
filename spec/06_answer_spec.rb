@@ -3,7 +3,7 @@ RSpec.describe Surveyor::Answer do
     sample_question = Surveyor::FreeTextQuestion.new(title: 'Sample Question')
     subject { described_class.new(question: sample_question, value: 'Sample Value') }
 
-    it "doesn't raise an error when question and value are valid" do
+    it "doesn't raise an error when question and answer value are valid" do
       expect { described_class.new(question: sample_question, value: 'Sample Value') }.not_to raise_error
     end
 
@@ -18,23 +18,19 @@ RSpec.describe Surveyor::Answer do
         expect(subject.value).to eq('Sample Value')
       end
 
-      it 'is a valid Answer value when it is a String' do
-        expect(subject.validate_answer(subject.value)).to eq(true)
-      end
-
-      it 'raises Answer value must be a String exception when value is not a String' do
+      it "raises 'Answer value must be a String' exception when Answer value is not a String" do
         expect { described_class.new(question: sample_question, value: 1) }.to raise_error(ArgumentError, 'Invalid Answer: Answer value must be a String')
       end
 
-      it "raises 'Answer value cannot be empty' exception when value is an empty String" do
+      it "raises 'Answer value cannot be empty' exception when Answer value is an empty String" do
         expect { described_class.new(question: sample_question, value: '') }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
       end
 
-      it "raises 'Answer value cannot be empty' exception when value is nil" do
+      it "raises 'Answer value cannot be empty' exception when Answer value is nil" do
         expect { described_class.new(question: sample_question, value: nil) }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
       end
 
-      it "raises 'Answer value cannot be empty' exception when valus is whitespace" do
+      it "raises 'Answer value cannot be empty' exception when Answer value is whitespace" do
         expect { described_class.new(question: sample_question, value: "             ") }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
       end
     end
@@ -56,38 +52,47 @@ RSpec.describe Surveyor::Answer do
 
     describe 'Answer Validation' do
       it 'has a value' do
-        expect(subject.value).to eq('Sample Value')
+        expect(subject.value).to eq(1)
       end
 
-      it 'is a valid answer' do
-        # ! I propose to replace this test and method with the error handling below:
-        expect(subject.value_is_valid?(subject.value)).to eq(true)
+      it 'Integer 1 is a valid Answer' do
+        expect { described_class.new(question: sample_question, value: 1) }.to_not raise_error
       end
 
-      it 'is a valid Answer value when it is an Integer 1' do
-        # let(:value) { 1 }
-        # expect(subject.question.value_is_valid?(:value)).to eq(true)
-        # expect() that value_is_valid? for subject.question will return true
+      it 'Integer 2 is a valid Answer' do
+        expect { described_class.new(question: sample_question, value: 2) }.to_not raise_error
       end
 
-      it 'is a valid Answer value when it is an Integer 2' do
-        expect(subject.value_is_valid?(subject.value)).to eq(true)
+      it 'Integer 3 is a valid Answer' do
+        expect { described_class.new(question: sample_question, value: 3) }.to_not raise_error
       end
 
-      it 'is a valid Answer value when it is an Integer 3' do
-        expect(subject.value_is_valid?(subject.value)).to eq(true)
+      it 'Integer 4 is a valid Answer' do
+        expect { described_class.new(question: sample_question, value: 4) }.to_not raise_error
       end
 
-      it 'is a valid Answer value when it is an Integer 4' do
-        expect(subject.value_is_valid?(subject.value)).to eq(true)
+      it 'Integer 5 is a valid Answer' do
+        expect { described_class.new(question: sample_question, value: 5) }.to_not raise_error
       end
 
-      it 'is a valid Answer value when it is an Integer 5' do
-        expect(subject.value_is_valid?(subject.value)).to eq(true)
+      it "raises 'Outside of Range' exception when Answer value is 0" do
+        expect { described_class.new(question: sample_question, value: 0) }.to raise_error(ArgumentError, 'Invalid Answer: Outside of Range')
       end
 
-      it 'raises Answer value must be a String exception when value is not a String' do
-        expect { described_class.new(question: sample_question, value: 1) }.to raise_error(ArgumentError, 'Invalid Answer: Answer value must be a String')
+      it "raises 'Outside of Range' exception when Answer value is 6" do
+        expect { described_class.new(question: sample_question, value: 6) }.to raise_error(ArgumentError, 'Invalid Answer: Outside of Range')
+      end
+
+      it "raises 'Outside of Range' exception when Answer value is -1" do
+        expect { described_class.new(question: sample_question, value: -1) }.to raise_error(ArgumentError, 'Invalid Answer: Outside of Range')
+      end
+
+      it "raises 'Answer must be a positive whole number' exception when Answer value is a Float" do
+        expect { described_class.new(question: sample_question, value: 1.0) }.to raise_error(ArgumentError, 'Invalid Answer: Answer must be a positive whole number')
+      end
+
+      it "raises 'Answer must be a positive whole number' exception when Answer value is a String" do
+        expect { described_class.new(question: sample_question, value: "1") }.to raise_error(ArgumentError, 'Invalid Answer: Answer must be a positive whole number')
       end
 
       it "raises 'Answer value cannot be empty' exception when value is an empty String" do
@@ -98,7 +103,7 @@ RSpec.describe Surveyor::Answer do
         expect { described_class.new(question: sample_question, value: nil) }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
       end
 
-      it "raises 'Answer value cannot be empty' exception when valus is whitespace" do
+      it "raises 'Answer value cannot be empty' exception when value is whitespace" do
         expect { described_class.new(question: sample_question, value: "             ") }.to raise_error(ArgumentError, 'Invalid Answer: Answer value cannot be empty')
       end
     end
