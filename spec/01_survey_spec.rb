@@ -108,7 +108,7 @@ RSpec.describe Surveyor::Survey do
           response = Surveyor::Response.new(email: "test@gmail.com")
           response.add_answer(answer)
           subject.add_response(response)
-          expect(subject.count_answers(@sample_question, 1, 2, 3, 4, 5)).to eq(12)
+          expect(subject.fetch_answers(@sample_question, 1, 2, 3, 4, 5).length).to eq(12)
         end
 
         it 'can handle zero answers' do
@@ -118,43 +118,53 @@ RSpec.describe Surveyor::Survey do
           response.add_answer(answer)
           subject.add_response(response)
           subject.add_question(question)
-          expect(subject.count_answers(question, 2)).to eq(0)
+          expect(subject.fetch_answers(question, 2).length).to eq(0)
         end
 
         it "can handle a question that doesn't exist" do
-          expect(subject.count_answers(double(:question), 1)).to eq("That question doesn't exist")
+          expect(subject.fetch_answers(double(:question), 1)).to eq("That question doesn't exist")
         end
 
         it 'can count answers with rating 1' do
-          expect(subject.count_answers(@sample_question, 1)).to eq(3)
+          expect(subject.fetch_answers(@sample_question, 1).length).to eq(3)
         end
 
         it 'can count answers with rating 2' do
-          expect(subject.count_answers(@sample_question, 2)).to eq(1)
+          expect(subject.fetch_answers(@sample_question, 2).length).to eq(1)
         end
 
         it 'can count answers with rating 3' do
-          expect(subject.count_answers(@sample_question, 3)).to eq(2)
+          expect(subject.fetch_answers(@sample_question, 3).length).to eq(2)
         end
 
         it 'can count answers with rating 4' do
-          expect(subject.count_answers(@sample_question, 4)).to eq(2)
+          expect(subject.fetch_answers(@sample_question, 4).length).to eq(2)
         end
 
         it 'can count answers with rating 5' do
-          expect(subject.count_answers(@sample_question, 5)).to eq(4)
+          expect(subject.fetch_answers(@sample_question, 5).length).to eq(4)
         end
 
         it 'can count low answers' do
-          expect(subject.count_low_answers(@sample_question)).to eq(4)
+          expect(subject.fetch_low_answers(@sample_question).length).to eq(4)
         end
 
         it 'can count neutral answers' do
-          expect(subject.count_neutral_answers(@sample_question)).to eq(2)
+          expect(subject.fetch_neutral_answers(@sample_question).length).to eq(2)
         end
 
         it 'can count high answers' do
-          expect(subject.count_high_answers(@sample_question)).to eq(6)
+          expect(subject.fetch_high_answers(@sample_question).length).to eq(6)
+        end
+
+        describe 'Break down answers for a given question' do
+          it 'display selected answers in the correct format' do
+            expect(subject.display_answers(@sample_question, 1, 2, 3)).to eq("1: 3\n2: 1\n3: 2")
+          end
+  
+          it 'display all answers in the correct format' do
+            expect(subject.display_all_answers(@sample_question)).to eq("1: 3\n2: 1\n3: 2\n4: 2\n5: 4")
+          end
         end
       end
     end

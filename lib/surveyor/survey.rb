@@ -24,31 +24,37 @@ module Surveyor
       find_user_response(email) != nil
     end
 
-    def count_answers(target_question, *args)
+    def fetch_answers(target_question, *args)
       return "That question doesn't exist" unless @questions.include?(target_question)
 
-      total = 0
+      answers = []
       @responses.each do |response|
         response.answers.each do |answer|
           if answer.question == target_question &&
              args.include?(answer.value)
-            total += 1
+            answers.push(answer)
           end
         end
       end
-      total
+      answers
     end
 
-    def count_low_answers(target_question)
-      count_answers(target_question, 1, 2)
+    def fetch_low_answers(target_question)
+      fetch_answers(target_question, 1, 2)
     end
 
-    def count_neutral_answers(target_question)
-      count_answers(target_question, 3)
+    def fetch_neutral_answers(target_question)
+      fetch_answers(target_question, 3)
     end
 
-    def count_high_answers(target_question)
-      count_answers(target_question, 4, 5)
+    def fetch_high_answers(target_question)
+      fetch_answers(target_question, 4, 5)
+    end
+
+    def display_answers(target_question, *args)
+      fetch_answers(target_question, *args).each_with_index do |answer, index|
+        puts "#{index + 1}: #{answer.value}"
+      end
     end
   end
 end
@@ -100,5 +106,7 @@ end
 # ... count answer = 2 for given question
 
 # * TEST
-# Return the correct result
-# Should equal total number of responses
+# Return the correct number of total answers
+# Returns answers for the correct question
+# Handles question that doesn't exist
+# Displays zero with no problem
