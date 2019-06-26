@@ -161,9 +161,23 @@ RSpec.describe Surveyor::Survey do
           it 'display selected answers in the correct format' do
             expect(subject.display_answers(@sample_question, 1, 2, 3)).to eq("1: 3\n2: 1\n3: 2")
           end
-  
+
           it 'display all answers in the correct format' do
             expect(subject.display_all_answers(@sample_question)).to eq("1: 3\n2: 1\n3: 2\n4: 2\n5: 4")
+          end
+
+          it "can handle a question that doesn't exist" do
+            expect(subject.display_answers(double(:question))).to eq("That question doesn't exist")
+          end
+
+          it 'handles displaying zero when a requested answer count has no results' do
+            question = Surveyor::RatingQuestion.new(title: 'Test Question')
+            answer = Surveyor::Answer.new(question: question, value: 1)
+            response = Surveyor::Response.new(email: "test@gmail.com")
+            response.add_answer(answer)
+            subject.add_response(response)
+            subject.add_question(question)
+            expect(subject.display_answers(question, 2)).to eq("2: 0")
           end
         end
       end

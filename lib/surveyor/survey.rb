@@ -30,8 +30,10 @@ module Surveyor
       answers = []
       @responses.each do |response|
         response.answers.each do |answer|
-          if answer.question == target_question &&
-             args.include?(answer.value)
+          if args.length.zero?
+            answers.push(answer)
+          elsif answer.question == target_question &&
+                args.include?(answer.value)
             answers.push(answer)
           end
         end
@@ -52,6 +54,8 @@ module Surveyor
     end
 
     def display_answers(target_question, *args)
+      return "That question doesn't exist" unless @questions.include?(target_question)
+
       results = {}
       fetch_answers(target_question, *args).each do |answer|
         results[answer.value] ? results[answer.value] += 1 : results[answer.value] = 1
@@ -62,6 +66,9 @@ module Surveyor
       formatted_results.join("\n")
     end
 
+    def display_all_answers(target_question)
+      display_answers(target_question)
+    end
   end
 end
 
