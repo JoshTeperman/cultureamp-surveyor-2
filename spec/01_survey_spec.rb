@@ -102,6 +102,29 @@ RSpec.describe Surveyor::Survey do
           expect(@sample_question.title).to eq('Sample Title')
         end
 
+        it 'method only counts answers to the target question' do
+          question = Surveyor::RatingQuestion.new(title: 'Test Question')
+          answer = Surveyor::Answer.new(question: question, value: 3)
+          response = Surveyor::Response.new(email: "test@gmail.com")
+          response.add_answer(answer)
+          subject.add_response(response)
+          expect(subject.count_answers(@sample_question, 1, 2, 3, 4, 5)).to eq(12)
+        end
+
+        it 'can handle zero answers' do
+          question = Surveyor::RatingQuestion.new(title: 'Test Question')
+          answer = Surveyor::Answer.new(question: question, value: 1)
+          response = Surveyor::Response.new(email: "test@gmail.com")
+          response.add_answer(answer)
+          subject.add_response(response)
+          subject.add_question(question)
+          expect(subject.count_answers(question, 2)).to eq(0)
+        end
+
+        it "can handle a question that doesn't exist" do
+          expect(subject.count_answers(double(:question), 1)).to eq("That question doesn't exist")
+        end
+
         it 'can count answers with rating 1' do
           expect(subject.count_answers(@sample_question, 1)).to eq(3)
         end
@@ -134,9 +157,6 @@ RSpec.describe Surveyor::Survey do
           expect(subject.count_high_answers(@sample_question)).to eq(6)
         end
       end
-      # it 'count low answers for a given rating question' do
-      #   expect(subject.count_low_answers(question)).to eq(2)
-      # end
     end
   end
 end

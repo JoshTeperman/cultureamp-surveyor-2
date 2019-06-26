@@ -25,6 +25,8 @@ module Surveyor
     end
 
     def count_answers(target_question, *args)
+      return "That question doesn't exist" unless @questions.include?(target_question)
+
       total = 0
       @responses.each do |response|
         response.answers.each do |answer|
