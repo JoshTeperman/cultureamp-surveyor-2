@@ -131,9 +131,3 @@ You can run `bundle exec rubocop` to check to see if your code complies with the
 If you think you've finished with the coding test, then please do submit it back to us by following the instructions in the email. We'll evalulate it and get back to you.
 
 Good luck!
-
-
-
-! created data seaparately for different describe blocks to avoid different definitions and values corrupting other tests, also makes it easier to refactor one test block without breaking other tests
-
-! fetch_answers method: returned Answer object rather than value, as I thought that may be useful for other functionality in the future (ie: returning customer id etc). this required some extra lines of code (.length to return total number of answers for example) but seemed a reasonable trade-off
