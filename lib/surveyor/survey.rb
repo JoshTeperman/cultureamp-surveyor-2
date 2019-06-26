@@ -52,10 +52,16 @@ module Surveyor
     end
 
     def display_answers(target_question, *args)
-      fetch_answers(target_question, *args).each_with_index do |answer, index|
-        puts "#{index + 1}: #{answer.value}"
+      results = {}
+      fetch_answers(target_question, *args).each do |answer|
+        results[answer.value] ? results[answer.value] += 1 : results[answer.value] = 1
       end
+      formatted_results = results.map do |answer, total|
+        ["#{answer}: #{total}"]
+      end
+      formatted_results.join("\n")
     end
+
   end
 end
 
@@ -106,7 +112,6 @@ end
 # ... count answer = 2 for given question
 
 # * TEST
-# Return the correct number of total answers
 # Returns answers for the correct question
 # Handles question that doesn't exist
 # Displays zero with no problem
