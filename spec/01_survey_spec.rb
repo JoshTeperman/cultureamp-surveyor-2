@@ -55,26 +55,77 @@ RSpec.describe Surveyor::Survey do
       end
     end
 
-    describe 'Answer Breakdown' do
+    describe 'Survey Response & Answer breakdown' do
+      # Seed a new RatingQuesiton:
       before(:each) do
-        question = Surveyor::FreeTextQuestion.new(title: 'Sample Title')
+        subject.responses.clear
+        question = Surveyor::RatingQuestion.new(title: 'Sample Title')
         subject.add_question(question)
 
-        answers = [
-          Surveyor::Answer.new(question: question, value: 1),
-          Surveyor::Answer.new(question: question, value: 2),
-          Surveyor::Answer.new(question: question, value: 3),
-          Surveyor::Answer.new(question: question, value: 4),
-          Surveyor::Answer.new(question: question, value: 5),
-        ]
+        # Seed Answers to RatingQuestion:
+        answers = [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 5, 5]
+        new_answers = answers.map do |answer|
+          Surveyor::Answer.new(question: question, value: answer)
+        end
 
-        answers.each do |answer|
-          response = Surveyor::Response.new(email: email)
+        # Seed Responses with above Answers and add to Survey:
+        counter = 1
+        new_answers.each do |answer|
+          response = Surveyor::Response.new(email: "#{counter}@gmail.com")
           response.add_answer(answer)
           subject.add_response(response)
+          counter += 1
         end
       end
 
+      describe 'Data seeded correctly' do
+        it 'Survey should be seeded with 12 Responses' do
+          expect(subject.responses.length).to eq(12)
+        end
+
+        it 'Question is a RatingQuestion' do
+          expect(subject.questions.sample.class).to eq(Surveyor::RatingQuestion)
+        end
+
+        it 'Response emails are all unique' do
+          emails = subject.responses.map(&:email)
+          expect(emails.uniq.length).to eq(subject.responses.length)
+        end
+      end
+
+      describe 'Count answers for a given question' do
+        before(:each) do
+          @sample_question = subject.questions.first
+        end
+
+        it 'is the expected question' do
+          expect(@sample_question.title).to eq('Sample Title')
+        end
+
+        it 'can count answers with rating 1' do
+          expect(subject.count_answers(@sample_question, 1)).to eq(3)
+        end
+
+        it 'can count answers with rating 2' do
+          expect(subject.count_answers(@sample_question, 2)).to eq(1)
+        end
+
+        it 'can count answers with rating 3' do
+          expect(subject.count_answers(@sample_question, 3)).to eq(2)
+        end
+
+        it 'can count answers with rating 4' do
+          expect(subject.count_answers(@sample_question, 4)).to eq(2)
+        end
+
+        it 'can count answers with rating 5' do
+          expect(subject.count_answers(@sample_question, 5)).to eq(4)
+        end
+
+        it 'can count low answers' do
+          expect(subject.count_low_answers(@sample_question)).to eq(4)
+        end
+      end
       # it 'count low answers for a given rating question' do
       #   expect(subject.count_low_answers(question)).to eq(2)
       # end
