@@ -125,6 +125,14 @@ RSpec.describe Surveyor::Survey do
         it 'can count low answers' do
           expect(subject.count_low_answers(@sample_question)).to eq(4)
         end
+
+        it 'can count neutral answers' do
+          expect(subject.count_neutral_answers(@sample_question)).to eq(2)
+        end
+
+        it 'can count high answers' do
+          expect(subject.count_high_answers(@sample_question)).to eq(6)
+        end
       end
       # it 'count low answers for a given rating question' do
       #   expect(subject.count_low_answers(question)).to eq(2)

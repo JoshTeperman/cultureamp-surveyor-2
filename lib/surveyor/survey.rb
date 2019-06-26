@@ -40,6 +40,14 @@ module Surveyor
     def count_low_answers(target_question)
       count_answers(target_question, 1, 2)
     end
+
+    def count_neutral_answers(target_question)
+      count_answers(target_question, 3)
+    end
+
+    def count_high_answers(target_question)
+      count_answers(target_question, 4, 5)
+    end
   end
 end
 
@@ -68,8 +76,8 @@ end
 # Method counts answers for a given question and answer
 # Method counts low answers for a given question
 # survey.count_low_answers(question) => num of low answers (Int)
-# TODO: survey.count_neutral_answers(question) => num of neutral answers (Int)
-# TODO: survey.count_high_answers(question) => num of high answers (Int)
+# survey.count_neutral_answers(question) => num of neutral answers (Int)
+# survey.count_high_answers(question) => num of high answers (Int)
 
 # ... question = survey.selected_question
 # ... answers = survey.responses.each(response.answers.answer to question) => array of answers to question
