@@ -135,3 +135,5 @@ Good luck!
 
 
 ! created data seaparately for different describe blocks to avoid different definitions and values corrupting other tests, also makes it easier to refactor one test block without breaking other tests
+
+! fetch_answers method: returned Answer object rather than value, as I thought that may be useful for other functionality in the future (ie: returning customer id etc). this required some extra lines of code (.length to return total number of answers for example) but seemed a reasonable trade-off

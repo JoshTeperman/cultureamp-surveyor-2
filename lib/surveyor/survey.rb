@@ -57,8 +57,15 @@ module Surveyor
       return "That question doesn't exist" unless @questions.include?(target_question)
 
       results = {}
-      fetch_answers(target_question, *args).each do |answer|
-        results[answer.value] ? results[answer.value] += 1 : results[answer.value] = 1
+      survey_answers = fetch_answers(target_question, *args).map(&:value)
+      if args.length.zero?
+        survey_answers.each do |answer|
+          results[answer] = survey_answers.count(answer)
+        end
+      else
+        args.each do |target_answer|
+          results[target_answer] = survey_answers.count(target_answer)
+        end
       end
       formatted_results = results.map do |answer, total|
         ["#{answer}: #{total}"]

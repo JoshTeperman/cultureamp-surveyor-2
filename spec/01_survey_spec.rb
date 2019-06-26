@@ -55,7 +55,7 @@ RSpec.describe Surveyor::Survey do
       end
     end
 
-    describe 'Survey Response & Answer breakdown' do
+    describe 'Survey Response & Answer breakdown for Rating Questions' do
       # Seed a new RatingQuesiton:
       before(:each) do
         subject.responses.clear
@@ -182,7 +182,122 @@ RSpec.describe Surveyor::Survey do
         end
       end
     end
+
+    describe 'Survey Response & Answer breakdown for Free Text Questions' do
+      # Seed a new FreeTextQuesiton:
+      before(:each) do
+        subject.responses.clear
+        question = Surveyor::FreeTextQuestion.new(title: 'Sample Title')
+        subject.add_question(question)
+
+        # Seed Answers to FreeTextQuestion:
+        answers = [
+          'aaaa',
+          'aaaa',
+          'aaaa',
+          'bbbb',
+          'cccc',
+          'cccc',
+          'dddd',
+          'dddd',
+          'eeee',
+          'eeee',
+          'eeee',
+          'eeee',
+        ]
+        new_answers = answers.map do |answer|
+          Surveyor::Answer.new(question: question, value: answer)
+        end
+
+        # Seed Responses with above Answers and add to Survey:
+        counter = 1
+        new_answers.each do |answer|
+          response = Surveyor::Response.new(email: "#{counter}@gmail.com")
+          response.add_answer(answer)
+          subject.add_response(response)
+          counter += 1
+        end
+      end
+
+      describe 'Data seeded correctly' do
+        it 'Survey should be seeded with 12 Responses' do
+          expect(subject.responses.length).to eq(12)
+        end
+
+        it 'Question is a RatingQuestion' do
+          expect(subject.questions.sample.class).to eq(Surveyor::FreeTextQuestion)
+        end
+
+        it 'Response emails are all unique' do
+          emails = subject.responses.map(&:email)
+          expect(emails.uniq.length).to eq(subject.responses.length)
+        end
+      end
+
+      describe 'Count answers for a given question' do
+        before(:each) do
+          @sample_question = subject.questions.first
+        end
+
+        it 'is the expected question' do
+          expect(@sample_question.title).to eq('Sample Title')
+        end
+
+        it 'method only counts answers to the target question' do
+          question = Surveyor::FreeTextQuestion.new(title: 'Test Question')
+          answer = Surveyor::Answer.new(question: question, value: 'Test Answer')
+          response = Surveyor::Response.new(email: "test@gmail.com")
+          response.add_answer(answer)
+          subject.add_response(response)
+          expect(subject.fetch_answers(@sample_question, 'aaaa', 'bbbb', 'cccc', 'dddd', 'eeee').length).to eq(12)
+        end
+
+        it 'can handle zero answers' do
+          question = Surveyor::FreeTextQuestion.new(title: 'Test Question')
+          answer = Surveyor::Answer.new(question: question, value: 'Test Answer')
+          response = Surveyor::Response.new(email: "test@gmail.com")
+          response.add_answer(answer)
+          subject.add_response(response)
+          subject.add_question(question)
+          expect(subject.fetch_answers(question, 'bbbb').length).to eq(0)
+        end
+
+        it "can handle a question that doesn't exist" do
+          expect(subject.fetch_answers(double(:question), 'Test Answer')).to eq("That question doesn't exist")
+        end
+
+        it 'can count a specific answer to a question' do
+          expect(subject.fetch_answers(@sample_question, 'aaaa').length).to eq(3)
+        end
+
+        it 'can count multiple specific answers to a question' do
+          expect(subject.fetch_answers(@sample_question, 'aaaa', 'bbbb').length).to eq(4)
+        end
+
+        describe 'Break down answers for a given question' do
+          it 'display selected answers in the correct format' do
+            expect(subject.display_answers(@sample_question, 'aaaa', 'bbbb', 'cccc')).to eq("aaaa: 3\nbbbb: 1\ncccc: 2")
+          end
+
+          it 'display all answers in the correct format' do
+            expect(subject.display_all_answers(@sample_question)).to eq("aaaa: 3\nbbbb: 1\ncccc: 2\ndddd: 2\neeee: 4")
+          end
+
+          it "can handle a question that doesn't exist" do
+            expect(subject.display_answers(double(:question))).to eq("That question doesn't exist")
+          end
+
+          it 'handles displaying zero when a requested answer count has no results' do
+            question = Surveyor::FreeTextQuestion.new(title: 'Test Question')
+            answer = Surveyor::Answer.new(question: question, value: 'Test Answer')
+            response = Surveyor::Response.new(email: "test@gmail.com")
+            response.add_answer(answer)
+            subject.add_response(response)
+            subject.add_question(question)
+            expect(subject.display_answers(question, 'Another Test Answer')).to eq("Another Test Answer: 0")
+          end
+        end
+      end
+    end
   end
 end
-
-# ! assumption: email validation validation is used before filling out the survey to disallow multiple responses from the same user
