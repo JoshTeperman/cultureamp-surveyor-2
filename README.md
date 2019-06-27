@@ -40,7 +40,7 @@ To view the tests and see if anything is failing run `bundle exec rspec` and you
 - Has a `:name`, a list of `:questions` and `:responses` to those `:questions`:
 - Ask a `Survey` what its `:responses` are.
 - Add `Questions` and `Responses` to the `Survey`.
-- Search for the `Response` from a partiular user by email address
+- Search for the `Response` from a particular user by email address
 - Check if a user has already responded.
 - Search for and retrieve `Answers` to a `Question` based on the `Question` and `Answer` value. 
 - Return (and count) the low, neutral or high value `Answers` to `Rating Questions`.
