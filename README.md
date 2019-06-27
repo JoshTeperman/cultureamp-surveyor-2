@@ -30,7 +30,7 @@ You can verify that the code matches the Ruby Style Guide and what's configured 
 ```
 bundle exec rubocop
 ```
-To view the tests and see if anything is failing run `bundle exec rspec` and you should see the full test suite and a summary the results of the tests. 
+To view the tests and see if anything is failing run `bundle exec rspec` and you should see the full test suite and a summary of the results of the tests. 
 
 # App Description 
 
