@@ -192,6 +192,12 @@ answers = [
           'bbbb',
           'cccc',
           'cccc',
+          'dddd',
+          'dddd',
+          'eeee',
+          'eeee',
+          'eeee',
+          'eeee',
         ]
 
 it 'can count multiple specific answers to a question' do
