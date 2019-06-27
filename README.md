@@ -140,7 +140,7 @@ would return:
 ```
 1: 2
 2: 1
-3: 3
+3: 2
 ```
 
 I used the `fetch_answers(target_question, *args)` from earlier to retrieve the data, and wrote a new method that would format and display the results:
