@@ -223,6 +223,44 @@ it 'handles displaying zero when a requested answer count has no results' do
 end
 ```
 
+### Initializing Class Instances:
+```
+$~/lib/surveyor/question.rb
+
+class Question
+    attr_reader :title
+
+    def initialize(question_hash)
+      title = question_hash[:title]
+      validate_title(title)
+      @title = title
+    end
+...
+
+$~/lib/surveyor/answer.rb
+
+class Answer
+    attr_reader :question, :value
+
+    def initialize(answer_hash)
+      @question = answer_hash[:question]
+      value = answer_hash[:value]
+      @question.validate_answer(value)
+      @value = value
+    end
+...
+```
+I wasn't happy with the readability of these `initialize` methods, but I couldn't think of a better solution.  I typically prefer to group `@attribute = attribute` declarations together to make it clear what attributes are being initialized, and what functions are being called. However, it was necessary to validate the `:title` & `Answer :value` before initializing them as instace attributes. 
+
+I also could have called `validate_title(question_hash[:title])` in the `Question` Class directly without saving it to a variable first, but then I would have had to do so for every guard clause which felt even messier. The same can be said for the validation call in the `Answer` Class.
+
+I wasn't certain whether I should initialize Class Instances using a hash or not. I was forced to to make the initial tests pass, but wasn't sure if it was a good design choice. Initially I felt it wasn't necessary as `Question.new(title: 'Sample Title)` is more complicated than `Question.new('Sample Title)`, when the latter could be initialized with `@title = title` without worrying about using the hash key. However, I found that using key / value pairs to initialize instances makes the code much more readable. For example, the first example in the snippet below makes it explicit what each argument refers to, where as the second example could be misinterpreted.
+```
+eg1: Answer.new(question: 'Sample Question', value: `Sample Value`)
+
+eg2: Answer.new(`Sample Question', `Sample Value)
+```
+
 ## Testing
 
 I closely followed the approach laid out in the Toy Robot book by Ryan Biggs, which adheres to the principles of Test Driven Development, and the Traffic Light method:
@@ -316,45 +354,6 @@ end
 ```
 
 I structured it this way so that when a new `Answer` is initialized, it will always call `@question.validate_answer(value)` and the validation will run as an instance method that references the `Question` Class which has it's own unique validation method. `Answer` knows nothing about what type of method or validation is being used on the `Answer` value. This means it is possible to create new types of `Question` Subclass with their own validations, increasing the maintainability and extendability of the code. 
-
-
-### Initializing Class Instances:
-```
-$~/lib/surveyor/question.rb
-
-class Question
-    attr_reader :title
-
-    def initialize(question_hash)
-      title = question_hash[:title]
-      validate_title(title)
-      @title = title
-    end
-...
-
-$~/lib/surveyor/answer.rb
-
-class Answer
-    attr_reader :question, :value
-
-    def initialize(answer_hash)
-      @question = answer_hash[:question]
-      value = answer_hash[:value]
-      @question.validate_answer(value)
-      @value = value
-    end
-...
-```
-I wasn't happy with the readability of these `initialize` methods, but I couldn't think of a better solution.  I typically prefer to group `@attribute = attribute` declarations together to make it clear what attributes are being initialized, and what functions are being called. However, it was necessary to validate the `:title` & `Answer :value` before initializing them as instace attributes. 
-
-I also could have called `validate_title(question_hash[:title])` in the `Question` Class directly without saving it to a variable first, but then I would have had to do so for every guard clause which felt even messier. The same can be said for the validation call in the `Answer` Class.
-
-I wasn't certain whether I should initialize Class Instances using a hash or not. I was forced to to make the initial tests pass, but wasn't sure if it was a good design choice. Initially I felt it wasn't necessary as `Question.new(title: 'Sample Title)` is more complicated than `Question.new('Sample Title)`, when the latter could be initialized with `@title = title` without worrying about using the hash key. However, I found that using key / value pairs to initialize instances makes the code much more readable. For example, the first example in the snippet below makes it explicit what each argument refers to, where as the second example could be misinterpreted.
-```
-eg1: Answer.new(question: 'Sample Question', value: `Sample Value`)
-
-eg2: Answer.new(`Sample Question', `Sample Value)
-```
 
 ### Takeaways
 
