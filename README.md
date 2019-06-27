@@ -143,9 +143,11 @@ would return:
 3: 2
 ```
 
-I used the `fetch_answers(target_question, *args)` from earlier to retrieve the data, and wrote a new method that would format and display the results:
+I used the `fetch_answers(target_question, *args)` method from earlier to retrieve the data, and wrote a new method that would format and display the results:
 
 ```
+~/lib/surveyor/survey.rb
+
 def display_answers(target_question, *args)
   return "That question doesn't exist" unless @questions.include?(target_question)
 
