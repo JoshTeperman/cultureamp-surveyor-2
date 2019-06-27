@@ -168,11 +168,45 @@ it 'handles displaying zero when a requested answer count has no results' do
 end
 ```
 
-! created data seaparately for different describe blocks to avoid different definitions and values corrupting other tests, also makes it easier to refactor one test block without breaking other tests
+## Testing
+
+created data separately for different describe blocks to avoid different definitions and values corrupting other tests, also makes it easier to refactor one test block without breaking other tests
 
 ## Validation & Error Handling
 
-<!-- Add a method to each of `FreeTextQuestion` and `RatingQuestion` classes that determines if a given answer would be valid. This method should return `true` or `false`, depending on the validity of the answer. For text questions, the answer is valid if it is any string -- even an empty string is OK. For rating questions, valid answers are any of the numbers between 1 and 5. That is: 1, 2, 3, 4 or 5 are all valid answers. -1 is invalid, as is 6. -->
+I deviated from the instructions, which were to create a method to test whether an answer is valid and returns `true` or `false`. For Free Text Questions the instruction was that any String, even an empty string, would be valid. 
+
+I chose to validate answers and throw custom errors rather than return true or false. I also chose not to allow empty strings or whitespace in this case. I fully understand that workin in a team environment taking reqests for features from Product or Senior Engineers, this kind of deviation without requesting permission would be unacceptable, yet in this case I was more interested in the challenge of adding extra validations and tests so that I could learn something new. 
+
+My validation method is actually an instance method of the Question Subclass, and is called within the initialize function of the Answer class:
+
+```
+~/lib/surveyor/free_text_question.rb
+
+class FreeTextQuestion < Question
+  def validate_answer(answer_value)
+    raise ArgumentError, 'Invalid Answer: Answer value cannot be empty' if answer_value.nil?
+    raise ArgumentError, 'Invalid Answer: Answer value must be a String' if answer_value.class != String
+    raise ArgumentError, 'Invalid Answer: Answer value cannot be empty' if answer_value.empty?
+    raise ArgumentError, 'Invalid Answer: Answer value cannot be empty' if answer_value =~ /\A\s*\z/
+
+    true
+  end
+end
+```
+```
+~/lib/surveyor/answer.rb
+
+def initialize(answer_hash)
+  @question = answer_hash[:question]
+  value = answer_hash[:value]
+  @question.validate_answer(value)
+  @value = value
+end
+```
+
+I structured it this way so that when a new Answer is initialized, it will always call `@question.validate_answer(value)` and the validation will run as an instance method that references the Question Class which has it's own unique validation method. Answer knows nothing about what type of method or validation is being used on the answer value. This means it is possible to create new types of Question Subclass with their own validations, increasing the maintainability and extendability of the code. 
+
 
 ### Initializing Class Instances:
 ```
