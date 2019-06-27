@@ -44,11 +44,11 @@ To view the tests and see if anything is failing run `bundle exec rspec` and you
 - Check if a user has already responded.
 - Search for and retrieve `Answers` to a `Question` based on the `Question` and `Answer` value. 
 - Return (and count) the low, neutral or high value `Answers` to `Rating Questions`.
-- Return a list of all the `Answers` to a `Question` and tally total number of each `Answer`. Do the same for one or more specific `Answers` to a specific `Question`. 
+- Return a list of all the `Answers` to a `Question` and tally the total number of each `Answer`. Do the same for one or more specific `Answers` to a specific `Question`. 
 
 
 `Question` Class and its subclasses `FreeTextQuestion` & `RatingQuestion`
-- `Question` is a superclass to all other `Question` classes inherit from.
+- `Question` is a superclass to all other `Question` classes that inherit from it.
 - Each subclass has it's own `Answer` validation method that can be customised, and is called when a new `Answer` is created. 
 - `FreeTextQuestion` subclass allows any type of `Answer` as long as it is a String with some basic limitations.
 - `RatingQestion` subclass allows the `Answers` 1 - 5.
