@@ -1,7 +1,5 @@
 # Surveyor - 2018 Culture Amp Junior Engineering Coding Test
 
-this Readme is still WIP
-
 ## About
 This is the 2018 technical challenge given to applicants to Culture Amp's Junior Engineering Program. 
 I did this challenge in conjuction with the Toy Robot book (https://leanpub.com/toyrobot/) to learn testing in Ruby, in particular the RSpec Testing Suite. 
@@ -12,7 +10,14 @@ You are given a starter Gem with some boilerplate classes, a couple of beginner 
 
 ## Setup
 
-For this coding test, you will first need to have Ruby 2.5 installed on your machine.
+To download this application to your computer, navigate to the directory you want to use on your computer and run `git clone https://github.com/JoshTeperman/cultureamp-surveyor-2.git`. This should install the files locally. You can then `cd cultureamp-surveyor-2` to open the application directory. 
+
+Alternatively, you can download the code directly to your hard-drive: https://github.com/JoshTeperman/cultureamp-surveyor-2/archive/master.zip
+
+To run this application, you will first need to have Ruby 2.5.1 installed on your machine. 
+
+Installation instructions here: https://www.ruby-lang.org/en/documentation/installation/
+
 You will also need Bundler installed:
 ```
 gem install bundler
@@ -59,10 +64,13 @@ To view the tests and see if anything is failing run `bundle exec rspec` and you
 - It is not possible to create an `Answer` without specifying what it's `Question` is.
 - Included on a `Response` to track what a person's `:answers` to a `Survey`. Therefore an `Answer` is linked to a `Response`, but not directly to a `Survey`.
 
+### File Structure
 
-## Design Decisions
+![File Structure](images/file-structure.png)
 
-### Finding Answers to a given question
+## Design Decisions:
+
+### Finding `Answers` to a given `Question`
 
 The challenge instructions were to create a method that would count the number of high, neutral, and low `Answers` to the `Rating Question`, and then create another method that would display the total `Answers` for each value in a readable format. 
 
@@ -120,7 +128,7 @@ Find `Answers` with a mixed group of values:
 
 This method will be useable with any combination of `Question` types and validations, and can be coupled with tests and `Question` validations written ensure the `Responses` are returning expected results. 
 
-### Display answers for a given question
+### Display `Answers` for a given `Question`
 
 The challenge required a method that would break down the `Responses` for a question by `Answer` value, and display the totals in a readable format. For example:
 
@@ -159,7 +167,7 @@ def display_answers(target_question, *args)
 end
 ```
 
-The method works in a similar way to the fetch_answers solution in that it takes an optional *args argument which allows a flexible search for different `Answer` values. Once again you can search for any combination of `Question` subclasses or `Answer` value types, as long as you configure the validations and tests as a safety net, and can be used to return all `Answers` using an additional method:
+The method works in a similar way to the `fetch_answers` solution in that it takes an optional `*args` argument which allows a flexible search for different `Answer` values. Once again you can search for any combination of `Question` subclasses or `Answer` value types, as long as you configure the validations and tests as a safety net, and can be used to return all `Answers` using an additional method:
 
 ```
 ~/lib/surveyor/survey.rb
@@ -168,7 +176,7 @@ def display_all_answers(target_question)
   display_answers(target_question)
 end
 ```
-Similarly to the `fetch_answers` method, when `*args` isn't specified, `*args.length` evaluates to zero and is caught by the if statement, which in turn counts all answers for the target question. 
+Similarly to the `fetch_answers` method, when `*args` isn't specified, `*args.length` evaluates to zero and is caught by the `if` statement, which in turn counts all `Answers` for the target `Question`. 
 
 Examples:
 
@@ -222,11 +230,11 @@ At the time of writing this all 77 tests are passing. Fingers crossed it stays t
 ![Tests Screenshot](images/tests3.png)
 
 
-### Structure
+### Test Structure
 
 Tests are written for each individual class. There are happy path and unhappy path tests for each class that confirm the behaviour of classes and the expected results of calling certain functions, as well as tests to confirm the right classes, data, and objects are being called. 
 
-All Test Files initialize a version of the class to be tested:
+All test files begin by initializing a version of the class to be tested:
 ```
 RSpec.describe Surveyor::Survey do
   subject { described_class.new(name: 'Engagement Survey') }
@@ -262,14 +270,17 @@ Here I have created three instances of the `Response` Class, and used a `before(
 
 Using `describe` and `context` blocks allows me to not only separate tests into groups, which makes reading the test results easier, but also avoids data mutation corrupting other tests.
 
+### Extending Tests
+
+The tests I wrote cover the core functionality of the code and use mostly unit tests and behaviour tests. Since this is a simple CLI-based application I felt that was reasonable. If I were to spend more time on this project I would add a front end and database, which would necessitate writing integration tests to ensure the entire application works as expected.
 
 ## Validation & Error Handling
 
-I deviated from the instructions, which were to create a method to test whether an answer is valid and returns `true` or `false`. For Free Text Questions the instruction was that any String, even an empty string, would be valid. 
+I deviated from the instructions, which were to create a method to test whether an `Answer` is valid and returns `true` or `false`. For `Free Text Questions` the instruction was that any string, even an empty string, would be valid. 
 
-I chose to validate answers and throw custom errors rather than return true or false. I also chose not to allow empty strings or whitespace in this case. I fully understand that workin in a team environment taking reqests for features from Product or Senior Engineers, this kind of deviation without requesting permission would be unacceptable, yet in this case I was more interested in the challenge of adding extra validations and tests so that I could learn something new. 
+I chose to validate `Answers` and throw custom errors rather than return `true` or `false`. I also chose not to allow empty strings or whitespace in this case. I fully understand that working in a team environment taking reqests for features from Product or Senior Engineers, this kind of deviation without requesting permission would be unacceptable, yet in this case I was more interested in the challenge of adding extra validations and tests so that I could learn something new. 
 
-My validation method is actually an instance method of the Question Subclass, and is called within the initialize function of the Answer class:
+My validation method is actually an instance method of the `Question` Subclass, and is called within the initialize function of the `Answer` class:
 
 ```
 ~/lib/surveyor/free_text_question.rb
@@ -296,7 +307,7 @@ def initialize(answer_hash)
 end
 ```
 
-I structured it this way so that when a new Answer is initialized, it will always call `@question.validate_answer(value)` and the validation will run as an instance method that references the Question Class which has it's own unique validation method. Answer knows nothing about what type of method or validation is being used on the answer value. This means it is possible to create new types of Question Subclass with their own validations, increasing the maintainability and extendability of the code. 
+I structured it this way so that when a new `Answer` is initialized, it will always call `@question.validate_answer(value)` and the validation will run as an instance method that references the `Question` Class which has it's own unique validation method. `Answer` knows nothing about what type of method or validation is being used on the `Answer` value. This means it is possible to create new types of `Question` Subclass with their own validations, increasing the maintainability and extendability of the code. 
 
 
 ### Initializing Class Instances:
@@ -326,9 +337,9 @@ class Answer
     end
 ...
 ```
-I wasn't happy with the readability of these initialize methods, but I couldn't think of a better solution.  I typically prefer to group `@attribute = attribute` declarations together to make it clear what attributes are being initialized, and what functions are being called. However, it was necessary to validate the title & answer value before initializing them as instace attributes. 
+I wasn't happy with the readability of these `initialize` methods, but I couldn't think of a better solution.  I typically prefer to group `@attribute = attribute` declarations together to make it clear what attributes are being initialized, and what functions are being called. However, it was necessary to validate the `:title` & `Answer :value` before initializing them as instace attributes. 
 
-I also could have called `validate_title(question_hash[:title])` in the Question Class directly without saving it to a variable first, but then I would have had to do so for every guard clause which felt even messier. The same can be said for the validation call in the Answer Class.
+I also could have called `validate_title(question_hash[:title])` in the `Question` Class directly without saving it to a variable first, but then I would have had to do so for every guard clause which felt even messier. The same can be said for the validation call in the `Answer` Class.
 
 I wasn't certain whether I should initialize Class Instances using a hash or not. I was forced to to make the initial tests pass, but wasn't sure if it was a good design choice. Initially I felt it wasn't necessary as `Question.new(title: 'Sample Title)` is more complicated than `Question.new('Sample Title)`, when the latter could be initialized with `@title = title` without worrying about using the hash key. However, I found that using key / value pairs to initialize instances makes the code much more readable. For example, the first example in the snippet below makes it explicit what each argument refers to, where as the second example could be misinterpreted.
 ```
@@ -336,7 +347,6 @@ eg1: Answer.new(question: 'Sample Question', value: `Sample Value`)
 
 eg2: Answer.new(`Sample Question', `Sample Value)
 ```
-
 
 ### Takeaways
 
@@ -349,11 +359,53 @@ This was my first time creating an app using TDD and it was life changing. Here 
 - Having a solid, working test suite gives you confidence that your code actually works. No more worriying about whether or not you missed something.
 - Refactoring is far easier when you make changes. If you break your code there's no confusion what to fix: simply make the tests pass and you're all good!
 
-
 ## Extending the App
 - Add user validation check - determine whether or not a user has already completed the survey before creating a new response.
 - Create a rails application with a front-end and a database. A relational database like Postgres would be best as it would make handling all the different object relationships easier
 
+## Troubleshooting
+
+If you have issues with dependencies and gettin the code to run, make sure you have run `bundle install`, and have the correct dependencies installed. 
+
+In particular, compare your software versions with the gem dependencies, which can be viewed in the below files:
+
+```
+~/surveyor.gemspec
+...
+spec.add_development_dependency "bundler", "~> 2.0.2"
+spec.add_development_dependency "rake", "~> 10.0"
+spec.add_development_dependency "rspec", "~> 3.0"
+spec.add_development_dependency "rubocop"
+```
+```
+~/Gemfile
+...
+ruby '2.5.1'
+...
+```
+```
+~/.ruby-version
+2.5.1
+```
+
+If you want to run a different version of bundler, ruby, rspec etc, feel free to delete the `Gemfile.lock`, edit or delete the gem versions, and re-run `bundle install`. 
+
+For any other question feel free to submit a pull request or send me a message on Twitter @joshteperman
+
+
 ## View the Original Source Code: 
 The source code for this test was written by Ryan Bigg at Culture Amp.
 To take this challenge yourself, `git clone https://github.com/radar/surveyor-2.git` and install the dependencies as per the description in the Readme. You may have to update some of the dependencies or install older versions of Bundler and Rspec to be able to run it. For the original instructions please read the Readme included in the source code.
+
+## About the author
+
+I'm Josh. Here are some of my things:
+
+[Github](https://github.com/JoshTeperman_)
+
+[Twitter](https://twitter.com/joshteperman)
+
+https://www.josht.dev/
+
+www.joshteperman.com (under construction)
+
