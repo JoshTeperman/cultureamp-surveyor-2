@@ -286,7 +286,7 @@ The tests I wrote cover the core functionality of the code and use mostly unit t
 
 I deviated from the instructions, which were to create a method to test whether an `Answer` is valid and returns `true` or `false`. For `Free Text Questions` the instruction was that any string, even an empty string, would be valid. 
 
-I chose to validate `Answers` and throw custom errors rather than return `true` or `false`. I also chose not to allow empty strings or whitespace in this case. I fully understand that working in a team environment taking reqests for features from Product or Senior Engineers, this kind of deviation without requesting permission would be unacceptable, yet in this case I was more interested in the challenge of adding extra validations and tests so that I could learn something new. 
+I chose to validate `Answers` and throw custom errors rather than return `true` or `false`. I also chose not to allow answers that are empty strings or whitespace with no characters in this case. I fully understand that working in a team environment taking reqests for features from Product or Senior Engineers, this kind of deviation without requesting permission would be unacceptable, yet in this case I was more interested in the challenge of adding extra validations and tests so that I could learn something new. 
 
 My validation method is actually an instance method of the `Question` Subclass, and is called within the initialize function of the `Answer` class:
 
