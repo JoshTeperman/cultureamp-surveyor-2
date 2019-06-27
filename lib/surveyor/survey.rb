@@ -78,4 +78,3 @@ module Surveyor
     end
   end
 end
-
