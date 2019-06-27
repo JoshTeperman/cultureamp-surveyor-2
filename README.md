@@ -355,7 +355,7 @@ end
 
 I structured it this way so that when a new `Answer` is initialized, it will always call `@question.validate_answer(value)` and the validation will run as an instance method that references the `Question` Class which has it's own unique validation method. `Answer` knows nothing about what type of method or validation is being used on the `Answer` value. This means it is possible to create new types of `Question` Subclass with their own validations, increasing the maintainability and extendability of the code. 
 
-### Takeaways
+## Takeaways
 
 This was my first time creating an app using TDD and it was life changing. Here is what I took away from this experience:
 
