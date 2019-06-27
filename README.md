@@ -10,15 +10,45 @@ The challenge consisted of coding and writing tests for 'Surveyor', a CLI-based 
 
 You are given a starter Gem with some boilerplate classes, a couple of beginner tests, and asked to build specific functionality coupled with tests that ensure the gem works as expected. 
 
-## App Description & Design Decisions
+## App Description 
 
-You should be able to add responses to a survey, and also ask a survey what its responses are.
+### Functionality: 
+- You should be able to add responses to a survey, and also ask a survey what its responses are.
+- You should be able to ask an answer what its question is. It should not be possible to create an answer without specifying a question.
+- It is not necessary to link an answer to a survey. Instead, answers should be added to responses. You should be able to ask a response what its answers are.
+- Answers only know what questions they are answering. 
+- Questions are included on a survey to give the people doing a survey something to answer. There is a top-level class called `Question` which acts as a superclass to all other question classes. There are two other question classes: `RatingQuestion` and `FreeTextQuestion`. These both inherit from the `Question` class:
+- Rating questions are those questions that could have answers between 1 and 5. 
+- Free text questions have answers that are text-based.
+- A response will include a particular person's answers to the survey's questions. Responses are included on a survey as a way of tracking a particular person's response to a survey. 
+- Attribute that tracks the email address of the user who has submitted the response.
+- Answers are included on a response to track what a particular person's answers were to questions on a survey. Answers are added to and therefore linked to responses, which are in turn linked to a Survey. Therefore you can ask a response what answers it has, but an Answer only knows what question it is answering. 
+- Tells you what Question the Answer is answering for the current survey.
+- Represents the actual answer value for the question that has been submitted by the user.
 
-You should be able to ask an answer what its question is. It should not be possible to create an answer without specifying a question.
 
-It is not necessary to link an answer to a survey. Instead, answers should be added to responses. You should be able to ask a response what its answers are.
 
-Answers only know what questions they are answering. 
+### List of Classes:
+- `Surveyor` Module
+- `Surveyor::Survey` Class
+  - `:name`
+  - `:questions`
+  - `:responses`
+- `Surveyor::Question` Class
+  - `:title` 
+- `Surveyor::RatingQuestion < Question` Class
+- `Surveyor::FreeTextQuestion < Question` Class
+- `Surveyor::Response` Class
+  - `:answers`
+  - `:email`
+- `Surveyor::Answer` Class
+  -`:question`
+  - `:value`
+
+
+
+## Design Decisions
+
 
 ### Find a particular user's response by email
 
@@ -172,7 +202,71 @@ end
 
 ## Testing
 
-created data separately for different describe blocks to avoid different definitions and values corrupting other tests, also makes it easier to refactor one test block without breaking other tests
+To view the tests and see if anything is failing run `bundle exec rspec` and you should see the full test suite and a summary the results of the tests. At the time of writing this all 77 tests are passing. Fingers crossed it stays that way :)
+
+![Tests Screenshot](images/tests1.png)
+![Tests Screenshot](images/tests2.png)
+![Tests Screenshot](images/tests3.png)
+
+### Approach
+
+I closely followed the approach laid out in the Toy Robot book by Ryan Biggs, which adheres to the principles of Test Driven Development, and the Traffic Light method:
+
+- Red: Write a test and make sure it fails
+- Amber: Make the test pass in any way you can
+- Gree: Refactor the code if necessary
+
+### Structure
+
+Tests are written for each individual class. There are happy path and unhappy path tests for each class that confirm the behaviour of classes and the expected results of calling certain functions, as well as tests to confirm the right classes, data, and objects are being called. 
+
+All Test Files initialize a version of the class to be tested:
+```
+RSpec.describe Surveyor::Survey do
+  subject { described_class.new(name: 'Engagement Survey') }
+```
+... which allows me to run tests against `subject`, which in this case is an instance of the Survey Class:
+```
+it 'has a name' do
+  expect(subject.name).to eq('Engagement Survey')
+end
+```
+
+Each individual test file then tests different behaviour or pieces of the class, separated into `describe` blocks: 
+```
+describe 'Responses' do
+  responses = [
+    Surveyor::Response.new(email: 'ohjosh@josh.com'),
+    Surveyor::Response.new(email: 'josh@josh.com'),
+    Surveyor::Response.new(email: 'wendy@wendy.com'),
+  ]
+  before(:each) do
+    responses.each { |response| subject.add_response(response) }
+  end
+
+  it 'can have responses added' do
+    response = double(:response)
+    subject.add_response(response)
+    expect(subject.responses).to include(response)
+  end
+  ...
+end
+```
+Here I have created three instances of the Response Class, and used a `before(:each)` to add them to my `subject` Survey Class instance for every subsequent test in this describe block. 
+
+Using describe and context blocks allows me to not only separate tests into groups, which makes reading the test results easier, but also avoids data mutation corrupting other tests.
+
+### Takeaways
+
+This was my first time creating an app using TDD and it was life changing. Here is what I took away from this experience:
+
+- Focusing on writing tests first, and then incrementally doing only just enough to make them pass forces you to write only the code you need. In the past I always wrote a tonne of code that I ended up needing to change or didn't end up using. In this test I only wrote what I needed, driven by the functionality defined in the test.
+- Writing the test first forces you to define the feature you are writing which leads to better decision making and better design. 
+- Writing tests forces you to think about architecture. I frequently had to make decisions about which class I was testing, where variables are defined etc. This allowed me to better clarify architecture and scope, and helped create clean, modularized code
+- Writing unhappy path tests forces you to think about how your code might be broken, which encourages defensive coding, validation, error handling, and pedantic strictly typed data type usage.
+- Having a solid, working test suite gives you confidence that your code actually works. No more worriying about whether or not you missed something.
+- Refactoring is far easier when you make changes. If you break your code there's no confusion what to fix: simply make the tests pass and you're all good!
+
 
 ## Validation & Error Handling
 
@@ -272,46 +366,6 @@ You can verify that the code matches the Ruby Style Guide and what's configured 
 ```
 bundle exec rubocop
 ```
-
-To view the tests and see if anything is failing run `bundle exec rspec`.
-
-## Module Structure
-
-### `Surveyor` Module
-
-### `Surveyor::Survey` Class
-`:name`<br>
-`:questions`<br>
-`:responses`
-
-### `Surveyor::Question` Class
-`:title` 
-
-Questions are included on a survey to give the people doing a survey something to answer. There is a top-level class called `Question` which acts as a superclass to all other question classes. There are two other question classes: `RatingQuestion` and `FreeTextQuestion`. These both inherit from the `Question` class:
-
-#### `Surveyor::RatingQuestion < Question` Class
-Rating questions are those questions that could have answers between 1 and 5. 
-
-#### `Surveyor::FreeTextQuestion < Question` Class
-Free text questions have answers that are text-based.
-
-### `Surveyor::Response` Class
-
-`:answers` (array of Answer instances)<br>
-A response will include a particular person's answers to the survey's questions. Responses are included on a survey as a way of tracking a particular person's response to a survey. 
-
-`:email`<br>
-Attribute that tracks the email address of the user who has submitted the response.
-
-### `Surveyor::Answer` Class
-
-Answers are included on a response to track what a particular person's answers were to questions on a survey. Answers are added to and therefore linked to responses, which are in turn linked to a Survey. Therefore you can ask a response what answers it has, but an Answer only knows what question it is answering. 
-
-`:question`<br>
-Tells you what Question the Answer is answering for the current survey.
-
-`:value`<br>
-Represents the actual answer value for the question that has been submitted by the user.
 
 
 
