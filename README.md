@@ -1,10 +1,217 @@
-# Surveyor - Culture Amp Junior Engineering Coding Test
+# Surveyor - 2018 Culture Amp Junior Engineering Coding Test
 
-Hi! Thanks for applying for the Junior Engineering Program at Culture Amp.
+## About
+This is the 2018 technical challenge given to applicants to Culture Amp's Junior Engineering Program. 
+I did this challenge in conjuction with the Toy Robot book (https://leanpub.com/toyrobot/) to learn testing in Ruby, in particular the RSpec Testing Suite. 
 
-What you'll find in this little directory is some code that was generated using the `bundle gem` command from the Bundler gem. This code is the code for an (imaginary) gem called "surveyor", which helps represent survey data within Ruby.
+The challenge consisted of coding and writing tests for 'Surveyor', a CLI-based Ruby Gem that represents and validates survey data in Ruby. 
 
-The two main sub-directories we would like to highlight are `lib` and `spec`. The code to make your gem work should go in `lib`, but the code that tests that should go in `spec`.
+You are given a starter Gem with some boilerplate classes, a couple of beginner tests, and asked to build specific functionality coupled with tests that ensure the gem works as expected. 
+
+## App Description & Design Decisions
+
+You should be able to add responses to a survey, and also ask a survey what its responses are.
+
+You should be able to ask an answer what its question is. It should not be possible to create an answer without specifying a question.
+
+It is not necessary to link an answer to a survey. Instead, answers should be added to responses. You should be able to ask a response what its answers are.
+
+Answers only know what questions they are answering. 
+
+### Find a particular user's response by email
+
+- Find a survey's response by the user's email address. If the response is not found, then the method will return `nil`.
+- Check whether a user has responded to this survey yet, returns `true` or `false`.
+
+### Find answers for a given question
+
+The challenge instructions were to create a method that would count the number of high, neutral, and low answers to the rating question, and then create another method that would display the total answers for each value in a readable format. 
+
+I initially wrote a method that would do exactly that, but decided to extend the code to flexibly allow for a search of any answer value for a given question:
+
+```
+~/lib/surveyor/survey.rb
+
+def fetch_answers(target_question, *args)
+  return "That question doesn't exist" unless @questions.include?(target_question)
+
+  answers = []
+  @responses.each do |response|
+    response.answers.each do |answer|
+      if args.length.zero?
+        answers.push(answer)
+      elsif answer.question == target_question &&
+            args.include?(answer.value)
+        answers.push(answer)
+      end
+    end
+  end
+  answers
+end
+```
+The above method takes an instance of a Question Subclass as it's first argument, which in this challenge can be either `Surveyor::FreeTextQuestion` or `Surveyor::RatingQuestion`, but is intended to be useable with any future definition of a Question Subclass. 
+
+The second argument `*args` allows a search for any number of answer values, and the method will return an array of all of the answers that match that value for the given question. 
+
+If no answers are specified in the second argument, the method will skip the answer value validation check, and it will return every answer for the question.  
+
+I chose to return an array of answer objects rather than the total number of answers. I thought this was a more extendable option as it still allows us to count answers by calling `.length` on the result of the method call, but in addition should allow for different features based off this data: for example you could add customer / respondent ID to the Answer object, giving you access to customer information etc etc, or add other variables that would allow for data analytics, all of which won't be possible if the method only returns the number of responses. 
+
+
+This method gives us a baseline to flexibly search for different types of data: For example:
+
+Find all answers: 
+```
+  fetch_answers(question)
+```
+Find all low answers (answer value 1 or 2), to be used with RatingQuestions:
+```
+  def fetch_low_answers(question)
+    fetch_answers(question, 1, 2)
+  end
+```
+Find answers with value 3 or 4:
+```
+  fetch_answers(question, 3, 4)
+```
+Find answers with a mixed group of values: 
+```
+  fetch_answers(question, 'Yes', 'No', 'Barbecue', 'something something something', 2, 100)
+```
+
+This method will be useable with any combination of Question types and validations, and can be coupled with tests and Question validations written ensure the responses are returning expected results. 
+
+### Display answers for a given question
+
+The challenge required a method that would break down the responses for a question by answer value, and display the totals in a readable format. For example:
+
+```
+answers = [1, 1, 2, 3, 3]
+```
+would return:
+
+```
+1: 2
+2: 1
+3: 3
+```
+
+I used the `fetch_answers(target_question, *args)` from earlier to retrieve the data, and wrote a new method that would format and display the results:
+
+```
+def display_answers(target_question, *args)
+  return "That question doesn't exist" unless @questions.include?(target_question)
+
+  results = {}
+  survey_answers = fetch_answers(target_question, *args).map(&:value)
+  if args.length.zero?
+    survey_answers.each do |answer|
+      results[answer] = survey_answers.count(answer)
+    end
+  else
+    args.each do |target_answer|
+      results[target_answer] = survey_answers.count(target_answer)
+    end
+  end
+  formatted_results = results.map do |answer, total|
+    ["#{answer}: #{total}"]
+  end
+  formatted_results.join("\n")
+end
+```
+
+The method works in a similar way to the fetch_answers solution in that it takes an optional *args argument which allows a flexible search for different answer values. Once again you can search for any combination of Question Subclasses or Answer value types, as long as you configure the validations and tests as a safety net, and can be used to return all answers using an additional method:
+
+```
+~/lib/surveyor/survey.rb
+
+def display_all_answers(target_question)
+  display_answers(target_question)
+end
+```
+Similarly to the `fetch_answers` method, when `*args` isn't specified, `*args.length` evaluates to zero and is caught by the if statement, which in turn counts all answers for the target question. 
+
+Examples:
+
+```
+~/spec/01_survey_spec.rb
+
+answers = [
+          'aaaa',
+          'aaaa',
+          'aaaa',
+          'bbbb',
+          'cccc',
+          'cccc',
+        ]
+
+it 'can count multiple specific answers to a question' do
+  expect(subject.fetch_answers(@sample_question, 'aaaa', 'bbbb').length).to eq(4)
+end
+
+...
+
+it 'display all answers in the correct format' do
+  expect(subject.display_all_answers(@sample_question)).to eq("aaaa: 3\nbbbb: 1\ncccc: 2\ndddd: 2\neeee: 4")
+end
+
+...
+
+it 'handles displaying zero when a requested answer count has no results' do
+  question = Surveyor::FreeTextQuestion.new(title: 'Test Question')
+  answer = Surveyor::Answer.new(question: question, value: 'Test Answer')
+  response = Surveyor::Response.new(email: "test@gmail.com")
+  response.add_answer(answer)
+  subject.add_response(response)
+  subject.add_question(question)
+  expect(subject.display_answers(question, 'Another Test Answer')).to eq("Another Test Answer: 0")
+end
+```
+
+! created data seaparately for different describe blocks to avoid different definitions and values corrupting other tests, also makes it easier to refactor one test block without breaking other tests
+
+## Validation & Error Handling
+
+<!-- Add a method to each of `FreeTextQuestion` and `RatingQuestion` classes that determines if a given answer would be valid. This method should return `true` or `false`, depending on the validity of the answer. For text questions, the answer is valid if it is any string -- even an empty string is OK. For rating questions, valid answers are any of the numbers between 1 and 5. That is: 1, 2, 3, 4 or 5 are all valid answers. -1 is invalid, as is 6. -->
+
+### Initializing Class Instances:
+```
+$~/lib/surveyor/question.rb
+
+class Question
+    attr_reader :title
+
+    def initialize(question_hash)
+      title = question_hash[:title]
+      validate_title(title)
+      @title = title
+    end
+...
+
+$~/lib/surveyor/answer.rb
+
+class Answer
+    attr_reader :question, :value
+
+    def initialize(answer_hash)
+      @question = answer_hash[:question]
+      value = answer_hash[:value]
+      @question.validate_answer(value)
+      @value = value
+    end
+...
+```
+I wasn't happy with the readability of these initialize methods, but I couldn't think of a better solution.  I typically prefer to group `@attribute = attribute` declarations together to make it clear what attributes are being initialized, and what functions are being called. However, it was necessary to validate the title & answer value before initializing them as instace attributes. 
+
+I also could have called `validate_title(question_hash[:title])` in the Question Class directly without saving it to a variable first, but then I would have had to do so for every guard clause which felt even messier. The same can be said for the validation call in the Answer Class.
+
+I wasn't certain whether I should initialize Class Instances using a hash or not. I was forced to to make the initial tests pass, but wasn't sure if it was a good design choice. Initially I felt it wasn't necessary as `Question.new(title: 'Sample Title)` is more complicated than `Question.new('Sample Title)`, when the latter could be initialized with `@title = title` without worrying about using the hash key. However, I found that using key / value pairs to initialize instances makes the code much more readable. For example, the first example in the snippet below makes it explicit what each argument refers to, where as the second example could be misinterpreted.
+```
+eg1: Answer.new(question: 'Sample Question', value: `Sample Value`)
+
+eg2: Answer.new(`Sample Question', `Sample Value)
+```
+
 
 ## Setup
 
@@ -24,110 +231,57 @@ bundle install
 
 This will install the dependencies
 
-You can verify that your code matches the Ruby Style Guide and what's configured in `.rubocop.yml` by running:
+You can verify that the code matches the Ruby Style Guide and what's configured in `.rubocop.yml` by running:
 
 ```
 bundle exec rubocop
 ```
 
-## Coding Challenge
+To view the tests and see if anything is failing run `bundle exec rspec`.
 
-Your task is to continue building out this gem by adding additional features.
+## Module Structure
 
-### Make the tests pass
+### `Surveyor` Module
 
-We have written a few tests to get you started. Your job is to make these tests pass. These tests are written using [the RSpec testing framework](https://relishapp.com/rspec).
+### `Surveyor::Survey` Class
+`:name`<br>
+`:questions`<br>
+`:responses`
 
-In `.rspec` (the RSpec configuration file), there is an option called `--fail-fast` that will make it so that only one test at a time fails for you. We have also ordered the tests with `0x` prefixes for their filenames and the `--order name` option in the `.rspec` file too.
+### `Surveyor::Question` Class
+`:title` 
 
-To get started here, you can run the tests and see what is failing by running `bundle exec rspec`.
+Questions are included on a survey to give the people doing a survey something to answer. There is a top-level class called `Question` which acts as a superclass to all other question classes. There are two other question classes: `RatingQuestion` and `FreeTextQuestion`. These both inherit from the `Question` class:
 
-Your first task is to make this first test (`01_survey_spec.rb`) pass in whatever way you can. There is more than one reason why this particular test is failing.
+#### `Surveyor::RatingQuestion < Question` Class
+Rating questions are those questions that could have answers between 1 and 5. 
 
-### Questions classes
+#### `Surveyor::FreeTextQuestion < Question` Class
+Free text questions have answers that are text-based.
 
-Your next task is to make the tests pass for the `RatingQuestion` and `FreeTextQuestion` classes.
+### `Surveyor::Response` Class
 
-Questions are included on a survey to give the people doing a survey something to answer. There is a top-level class called `Question` which acts as a superclass to all other question classes. There are two other question classes: `RatingQuestion` and `FreeTextQuestion`. These both inherit from the `Question` class.
+`:answers` (array of Answer instances)<br>
+A response will include a particular person's answers to the survey's questions. Responses are included on a survey as a way of tracking a particular person's response to a survey. 
 
-All question instances should have a `title` attribute. You should be able to add questions to a survey. You should be able to ask a survey what its questions are.
+`:email`<br>
+Attribute that tracks the email address of the user who has submitted the response.
 
-There are tests for these already in `02_question_spec.rb` for the things in this section. Your job now is to make those tests pass.
+### `Surveyor::Answer` Class
 
-### Adding different types of questions
+Answers are included on a response to track what a particular person's answers were to questions on a survey. Answers are added to and therefore linked to responses, which are in turn linked to a Survey. Therefore you can ask a response what answers it has, but an Answer only knows what question it is answering. 
 
-As you saw in the last section, there are two types of questions in this application: `RatingQuestion` and `FreeTextQuestion`. Rating questions are those questions that could have answers between 1 and 5. Free text questions have answers that are text-based. Think of these "free text" questions like comments.
+`:question`<br>
+Tells you what Question the Answer is answering for the current survey.
 
-There are more tests, this time in `03_free_text_question_spec.rb` and `04_rating_question_spec.rb`, which determine what these classes should do. Your task here is to make these tests pass.
+`:value`<br>
+Represents the actual answer value for the question that has been submitted by the user.
 
-Add a method to each of `FreeTextQuestion` and `RatingQuestion` classes that determines if a given answer would be valid. This method should return `true` or `false`, depending on the validity of the answer. For text questions, the answer is valid if it is any string -- even an empty string is OK. For rating questions, valid answers are any of the numbers between 1 and 5. That is: 1, 2, 3, 4 or 5 are all valid answers. -1 is invalid, as is 6.
 
-### Adding responses and answers
 
-And now we get to a harder part of the coding test where there are no pre-written tests to guide you. It is up to you now to write tests and the code that goes along with them in order to continue.
 
-*From this point on, it is assumed that you will be writing tests and code for each part as you go.*
-
-Your task is to now add responses to this application. Responses are included on a survey as a way of tracking a particular person's response to a survey. A response will include a particular person's answers to the survey's questions. To represent that data, you should add a `Response` class which will be used to represent a survey's responses.
-
-Add a `Response` class to the application. Responses should have an `email` attribute that tracks the email address of the user who has submitted the response.
-
-You should be able to add responses to a survey, and also ask a survey what its responses are.
-
-### Adding answers
-
-Now that this application has responses, the next task is to add answers. Answers are included on a response to track what a particular person's answers were to questions on a survey.
-
-Add an `Answer` class to the application. Answers should have a `question` attribute. You should be able to ask an answer what its question is. It should not be possible to create an answer without specifying a question.
-
-An answer should have a `value` attribute that represents the answer for the question.
-
-It is not necessary to link an answer to a survey. Instead, answers should be added to responses. You should be able to ask a response what its answers are.
-
-### Finding a particular user's response
-
-Add a new method that lets you find a survey's response by the user's email address. If the response is not found, then this method should return `nil`.
-
-Add another method that returns `true` or `false` depending on if the user has responded to this survey yet.
-
-### Finding low / neutral / high answers
-
-Surveys should be able to tell us how many "low", "neutral" and "high" answers there are for a particular rating question. The different ratings are:
-
-* Low: 1 or 2
-* Neutral: 3
-* High: 4 or 5
-
-Add a method that counts the low answers on a survey for a given question. Once you've got that working, do the same for both the neutral and high answers too.
-
-### Answer breakdown
-
-Surveys should be able to give us a breakdown of the answers for a particular rating question. This breakdown should tell us the number of each answer there was for that rating question in a format like:
-
-```
-1: 10
-2: 41
-3: 4
-4: 13
-5: 17
-```
-
-In this example, there would be 10 answers for the rating question that had the value "1", 41 with the value "2" and so on.
-
-## Assessment
-
-You will be assessed on the code you write here. What we're looking for in particular is:
 
 * Strong adherence to the [ruby-style-guide](https://github.com/bbatsov/ruby-style-guide)
 * Clean & simple Ruby code in `lib`
 * Tests in the `spec` directory to cover what your gem does
 
-It is possible to complete this coding challenge without adding any additional gems. You should aim to do as much as possible without adding additional gems to the `surveyor.gemspec` or `Gemfile` files.
-
-You can run `bundle exec rubocop` to check to see if your code complies with the `.rubocop.yml` file within this project. The output of this command should ideally contain the words "no offenses detected". This will be used to gauge how clean your Ruby code is.
-
-## Submitting the coding test
-
-If you think you've finished with the coding test, then please do submit it back to us by following the instructions in the email. We'll evalulate it and get back to you.
-
-Good luck!
