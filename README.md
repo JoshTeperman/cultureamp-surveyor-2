@@ -10,56 +10,63 @@ The challenge consisted of coding and writing tests for 'Surveyor', a CLI-based 
 
 You are given a starter Gem with some boilerplate classes, a couple of beginner tests, and asked to build specific functionality coupled with tests that ensure the gem works as expected. 
 
-## App Description 
+## Setup
 
-### Functionality: 
-- You should be able to add responses to a survey, and also ask a survey what its responses are.
-- You should be able to ask an answer what its question is. It should not be possible to create an answer without specifying a question.
-- It is not necessary to link an answer to a survey. Instead, answers should be added to responses. You should be able to ask a response what its answers are.
-- Answers only know what questions they are answering. 
-- Questions are included on a survey to give the people doing a survey something to answer. There is a top-level class called `Question` which acts as a superclass to all other question classes. There are two other question classes: `RatingQuestion` and `FreeTextQuestion`. These both inherit from the `Question` class:
-- Rating questions are those questions that could have answers between 1 and 5. 
-- Free text questions have answers that are text-based.
-- A response will include a particular person's answers to the survey's questions. Responses are included on a survey as a way of tracking a particular person's response to a survey. 
-- Attribute that tracks the email address of the user who has submitted the response.
-- Answers are included on a response to track what a particular person's answers were to questions on a survey. Answers are added to and therefore linked to responses, which are in turn linked to a Survey. Therefore you can ask a response what answers it has, but an Answer only knows what question it is answering. 
-- Tells you what Question the Answer is answering for the current survey.
-- Represents the actual answer value for the question that has been submitted by the user.
+For this coding test, you will first need to have Ruby 2.5 installed on your machine.
+You will also need Bundler installed:
+```
+gem install bundler
+```
+Once you have Ruby + Bundler installed, you can install the gem dependencies with this command:
+```
+bundle install
+```
+You can verify that the code matches the Ruby Style Guide and what's configured in `.rubocop.yml` by running:
+```
+bundle exec rubocop
+```
+To view the tests and see if anything is failing run `bundle exec rspec` and you should see the full test suite and a summary the results of the tests. 
+
+# App Description 
+
+## Functionality: 
+
+`Survey` Class 
+- Has a `:name`, a list of `:questions` and `:responses` to those `:questions`:
+- Ask a `Survey` what its `:responses` are.
+- Add `Questions` and `Responses` to the `Survey`.
+- Search for the `Response` from a partiular user by email address
+- Check if a user has already responded.
+- Search for and retrieve `Answers` to a `Question` based on the `Question` and `Answer` value. 
+- Return (and count) the low, neutral or high value `Answers` to `Rating Questions`.
+- Return a list of all the `Answers` to a `Question` and tally total number of each `Answer`. Do the same for one or more specific `Answers` to a specific `Question`. 
 
 
+`Question` Class and its subclasses `FreeTextQuestion` & `RatingQuestion`
+- `Question` is a superclass to all other `Question` classes inherit from.
+- Each subclass has it's own `Answer` validation method that can be customised, and is called when a new `Answer` is created. 
+- `FreeTextQuestion` subclass allows any type of `Answer` as long as it is a String with some basic limitations.
+- `RatingQestion` subclass allows the `Answers` 1 - 5.
+- Can create new types of `Question` subclasses as required. 
 
-### List of Classes:
-- `Surveyor` Module
-- `Surveyor::Survey` Class
-  - `:name`
-  - `:questions`
-  - `:responses`
-- `Surveyor::Question` Class
-  - `:title` 
-- `Surveyor::RatingQuestion < Question` Class
-- `Surveyor::FreeTextQuestion < Question` Class
-- `Surveyor::Response` Class
-  - `:answers`
-  - `:email`
-- `Surveyor::Answer` Class
-  -`:question`
-  - `:value`
+`Response` Class
+- Each `Response` contains all of the `:answers` to a Survey from one person, identified by an `:email` address. 
+- You can add `Answers` to a `Response` and ask a `Response` what its `Answers` are.
 
+`Answer` Class
+- Has a `:question` attribute which is an instance of one of the `:Question` subclasses. Therefore an `Answer` only knows what its `Question` is.
+- Contains the `Answer :value`, which is the response from the user.
+- It is not possible to create an `Answer` without specifying what it's `Question` is.
+- Included on a `Response` to track what a person's `:answers` to a `Survey`. Therefore an `Answer` is linked to a `Response`, but not directly to a `Survey`.
 
 
 ## Design Decisions
 
+### Finding Answers to a given question
 
-### Find a particular user's response by email
+The challenge instructions were to create a method that would count the number of high, neutral, and low `Answers` to the `Rating Question`, and then create another method that would display the total `Answers` for each value in a readable format. 
 
-- Find a survey's response by the user's email address. If the response is not found, then the method will return `nil`.
-- Check whether a user has responded to this survey yet, returns `true` or `false`.
-
-### Find answers for a given question
-
-The challenge instructions were to create a method that would count the number of high, neutral, and low answers to the rating question, and then create another method that would display the total answers for each value in a readable format. 
-
-I initially wrote a method that would do exactly that, but decided to extend the code to flexibly allow for a search of any answer value for a given question:
+I initially wrote a method that would do exactly that, but decided to extend the code to flexibly allow for a search of any `Answer` value for a given `Question`:
 
 ```
 ~/lib/surveyor/survey.rb
@@ -81,41 +88,41 @@ def fetch_answers(target_question, *args)
   answers
 end
 ```
-The above method takes an instance of a Question Subclass as it's first argument, which in this challenge can be either `Surveyor::FreeTextQuestion` or `Surveyor::RatingQuestion`, but is intended to be useable with any future definition of a Question Subclass. 
+The above method takes an instance of a `Question` Subclass as it's first argument, which in this challenge can be either `Surveyor::FreeTextQuestion` or `Surveyor::RatingQuestion`, but is intended to be useable with any future definition of a `Question` subclass. 
 
-The second argument `*args` allows a search for any number of answer values, and the method will return an array of all of the answers that match that value for the given question. 
+The second argument `*args` allows a search for any number of `Answer` values, and the method will return an array of all of the `Answers` that match that value for the given `Question`. 
 
-If no answers are specified in the second argument, the method will skip the answer value validation check, and it will return every answer for the question.  
+If no `Answers` are specified in the second argument, the method will skip the `Answer` value validation check, and it will return every `Answer` for the `Question`.  
 
-I chose to return an array of answer objects rather than the total number of answers. I thought this was a more extendable option as it still allows us to count answers by calling `.length` on the result of the method call, but in addition should allow for different features based off this data: for example you could add customer / respondent ID to the Answer object, giving you access to customer information etc etc, or add other variables that would allow for data analytics, all of which won't be possible if the method only returns the number of responses. 
+I chose to return an array of `Answer` objects rather than the total number of `Answers`. I thought this was a more extendable option as it still allows us to count `Answers` by calling `.length` on the result of the method call, but in addition should allow for different features based off this data: for example you could add customer / respondent ID to the `Answer` object, giving you access to customer information etc etc, or add other variables that would allow for data analytics, all of which won't be possible if the method only returns the number of `Responses`. 
 
 
 This method gives us a baseline to flexibly search for different types of data: For example:
 
-Find all answers: 
+Find all `Answers`: 
 ```
   fetch_answers(question)
 ```
-Find all low answers (answer value 1 or 2), to be used with RatingQuestions:
+Find all low `Answers` (value 1 or 2), to be used with `Rating Questions`:
 ```
   def fetch_low_answers(question)
     fetch_answers(question, 1, 2)
   end
 ```
-Find answers with value 3 or 4:
+Find `Answers` with value 3 or 4:
 ```
   fetch_answers(question, 3, 4)
 ```
-Find answers with a mixed group of values: 
+Find `Answers` with a mixed group of values: 
 ```
   fetch_answers(question, 'Yes', 'No', 'Barbecue', 'something something something', 2, 100)
 ```
 
-This method will be useable with any combination of Question types and validations, and can be coupled with tests and Question validations written ensure the responses are returning expected results. 
+This method will be useable with any combination of `Question` types and validations, and can be coupled with tests and `Question` validations written ensure the `Responses` are returning expected results. 
 
 ### Display answers for a given question
 
-The challenge required a method that would break down the responses for a question by answer value, and display the totals in a readable format. For example:
+The challenge required a method that would break down the `Responses` for a question by `Answer` value, and display the totals in a readable format. For example:
 
 ```
 answers = [1, 1, 2, 3, 3]
@@ -152,7 +159,7 @@ def display_answers(target_question, *args)
 end
 ```
 
-The method works in a similar way to the fetch_answers solution in that it takes an optional *args argument which allows a flexible search for different answer values. Once again you can search for any combination of Question Subclasses or Answer value types, as long as you configure the validations and tests as a safety net, and can be used to return all answers using an additional method:
+The method works in a similar way to the fetch_answers solution in that it takes an optional *args argument which allows a flexible search for different `Answer` values. Once again you can search for any combination of `Question` subclasses or `Answer` value types, as long as you configure the validations and tests as a safety net, and can be used to return all `Answers` using an additional method:
 
 ```
 ~/lib/surveyor/survey.rb
@@ -202,19 +209,18 @@ end
 
 ## Testing
 
-To view the tests and see if anything is failing run `bundle exec rspec` and you should see the full test suite and a summary the results of the tests. At the time of writing this all 77 tests are passing. Fingers crossed it stays that way :)
+I closely followed the approach laid out in the Toy Robot book by Ryan Biggs, which adheres to the principles of Test Driven Development, and the Traffic Light method:
+
+- Red: Write a test and make sure it fails
+- Amber: Make the test pass in any way you can
+- Green: Refactor the code if necessary
+
+At the time of writing this all 77 tests are passing. Fingers crossed it stays that way :)
 
 ![Tests Screenshot](images/tests1.png)
 ![Tests Screenshot](images/tests2.png)
 ![Tests Screenshot](images/tests3.png)
 
-### Approach
-
-I closely followed the approach laid out in the Toy Robot book by Ryan Biggs, which adheres to the principles of Test Driven Development, and the Traffic Light method:
-
-- Red: Write a test and make sure it fails
-- Amber: Make the test pass in any way you can
-- Gree: Refactor the code if necessary
 
 ### Structure
 
@@ -225,7 +231,7 @@ All Test Files initialize a version of the class to be tested:
 RSpec.describe Surveyor::Survey do
   subject { described_class.new(name: 'Engagement Survey') }
 ```
-... which allows me to run tests against `subject`, which in this case is an instance of the Survey Class:
+... which allows me to run tests against `subject`, which in this case is an instance of the `Survey` Class:
 ```
 it 'has a name' do
   expect(subject.name).to eq('Engagement Survey')
@@ -252,20 +258,9 @@ describe 'Responses' do
   ...
 end
 ```
-Here I have created three instances of the Response Class, and used a `before(:each)` to add them to my `subject` Survey Class instance for every subsequent test in this describe block. 
+Here I have created three instances of the `Response` Class, and used a `before(:each)` to add them to my `subject` (`Survey` Class instance) for every subsequent test in this `describe` block. 
 
-Using describe and context blocks allows me to not only separate tests into groups, which makes reading the test results easier, but also avoids data mutation corrupting other tests.
-
-### Takeaways
-
-This was my first time creating an app using TDD and it was life changing. Here is what I took away from this experience:
-
-- Focusing on writing tests first, and then incrementally doing only just enough to make them pass forces you to write only the code you need. In the past I always wrote a tonne of code that I ended up needing to change or didn't end up using. In this test I only wrote what I needed, driven by the functionality defined in the test.
-- Writing the test first forces you to define the feature you are writing which leads to better decision making and better design. 
-- Writing tests forces you to think about architecture. I frequently had to make decisions about which class I was testing, where variables are defined etc. This allowed me to better clarify architecture and scope, and helped create clean, modularized code
-- Writing unhappy path tests forces you to think about how your code might be broken, which encourages defensive coding, validation, error handling, and pedantic strictly typed data type usage.
-- Having a solid, working test suite gives you confidence that your code actually works. No more worriying about whether or not you missed something.
-- Refactoring is far easier when you make changes. If you break your code there's no confusion what to fix: simply make the tests pass and you're all good!
+Using `describe` and `context` blocks allows me to not only separate tests into groups, which makes reading the test results easier, but also avoids data mutation corrupting other tests.
 
 
 ## Validation & Error Handling
@@ -343,35 +338,22 @@ eg2: Answer.new(`Sample Question', `Sample Value)
 ```
 
 
-## Setup
+### Takeaways
 
-For this coding test, you will first need to have Ruby 2.5 installed on your machine.
+This was my first time creating an app using TDD and it was life changing. Here is what I took away from this experience:
 
-You will also need Bundler installed:
-
-```
-gem install bundler
-```
-
-Once you have Ruby + Bundler installed, you can install the gem dependencies for this test with this command:
-
-```
-bundle install
-```
-
-This will install the dependencies
-
-You can verify that the code matches the Ruby Style Guide and what's configured in `.rubocop.yml` by running:
-
-```
-bundle exec rubocop
-```
+- Focusing on writing tests first, and then incrementally doing only just enough to make them pass forces you to write only the code you need. In the past I always wrote a tonne of code that I ended up needing to change or didn't end up using. In this test I only wrote what I needed, driven by the functionality defined in the test.
+- Writing the test first forces you to define the feature you are writing which leads to better decision making and better design. 
+- Writing tests forces you to think about architecture. I frequently had to make decisions about which class I was testing, where variables are defined etc. This allowed me to better clarify architecture and scope, and helped create clean, modularized code
+- Writing unhappy path tests forces you to think about how your code might be broken, which encourages defensive coding, validation, error handling, and pedantic strictly typed data type usage.
+- Having a solid, working test suite gives you confidence that your code actually works. No more worriying about whether or not you missed something.
+- Refactoring is far easier when you make changes. If you break your code there's no confusion what to fix: simply make the tests pass and you're all good!
 
 
+## Extending the App
+- Add user validation check - determine whether or not a user has already completed the survey before creating a new response.
+- Create a rails application with a front-end and a database. A relational database like Postgres would be best as it would make handling all the different object relationships easier
 
-
-
-* Strong adherence to the [ruby-style-guide](https://github.com/bbatsov/ruby-style-guide)
-* Clean & simple Ruby code in `lib`
-* Tests in the `spec` directory to cover what your gem does
-
+## View the Original Source Code: 
+The source code for this test was written by Ryan Bigg at Culture Amp.
+To take this challenge yourself, `git clone https://github.com/radar/surveyor-2.git` and install the dependencies as per the description in the Readme. You may have to update some of the dependencies or install older versions of Bundler and Rspec to be able to run it. For the original instructions please read the Readme included in the source code.
