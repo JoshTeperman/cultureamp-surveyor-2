@@ -1,5 +1,7 @@
 # Surveyor - 2018 Culture Amp Junior Engineering Coding Test
 
+this Readme is still WIP
+
 ## About
 This is the 2018 technical challenge given to applicants to Culture Amp's Junior Engineering Program. 
 I did this challenge in conjuction with the Toy Robot book (https://leanpub.com/toyrobot/) to learn testing in Ruby, in particular the RSpec Testing Suite. 
